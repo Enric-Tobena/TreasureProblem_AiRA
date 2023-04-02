@@ -130,8 +130,8 @@ public class TreasureFinderTest {
 
 
      // Set environment agent and load list of steps into the agent
-     TAgent.loadListOfSteps(  numSteps, fileSteps ) ;
-     TAgent.setEnvironment( EnvAgent );
+     TAgent.loadListOfSteps(numSteps, fileSteps) ;
+     TAgent.setEnvironment(EnvAgent);
 
      // Test here the sequence of steps and check the resulting states with the
      // ones in seqOfStates

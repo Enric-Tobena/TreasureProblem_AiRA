@@ -13,6 +13,7 @@ import static java.lang.System.exit;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.sat4j.core.VecInt;
@@ -107,7 +108,6 @@ public class TreasureFinder  {
         idNextStep = 0;
         System.out.println("STARTING TREASURE FINDER AGENT...");
 
-
         tfstate = new TFState(WorldDim);  // Initialize state (matrix) of knowledge with '?'
         tfstate.printState();
     }
@@ -122,7 +122,6 @@ public class TreasureFinder  {
 
     **/
     public void setEnvironment( TreasureWorldEnv environment ) {
-
          EnvAgent =  environment;
     }
 
@@ -147,7 +146,7 @@ public class TreasureFinder  {
             steps = br.readLine();
             br.close();
         } catch (FileNotFoundException ex) {
-            System.out.println("MSG.   => Steps file not found");
+            System.out.println("MSG. => Steps file not found");
             exit(1);
         } catch (IOException ex) {
             Logger.getLogger(TreasureFinder.class.getName()).log(Level.SEVERE, null, ex);
@@ -181,8 +180,7 @@ public class TreasureFinder  {
     *    result of the logical inferences performed by the agent with its formula.
     *
     **/
-    public void runNextStep() throws
-            IOException,  ContradictionException, TimeoutException
+    public void runNextStep() throws IOException,  ContradictionException, TimeoutException
     {
           
           // Add the conclusions obtained in the previous step
@@ -290,15 +288,13 @@ public class TreasureFinder  {
     *   @param ans message obtained to the query "Detects at (x,y)?".
     *          It will a message with four fields: detected  x y  [1,2,3]
     **/
-    public void processDetectorSensorAnswer( AMessage ans ) throws
-            IOException, ContradictionException,  TimeoutException
-    {
-
-      if ( ans.getComp(0).equals("detected") ) {
+    public void processDetectorSensorAnswer( AMessage ans ) throws IOException, ContradictionException, TimeoutException {
+      if (ans.getComp(0).equals("detected")) {
         int x = Integer.parseInt(ans.getComp(1));
         int y = Integer.parseInt(ans.getComp(2));
         int sensorValue = Integer.parseInt(ans.getComp(3));
 
+        addClauses(x, y, sensorValue);
          // Call your function/functions to add the evidence clauses
          // to Gamma to then be able to infer new NOT possible positions
 
@@ -307,7 +303,40 @@ public class TreasureFinder  {
        }  
     }
 
+    private void addClauses(int x, int y, int sensorValue) throws ContradictionException {
+        switch (sensorValue) {
+            case 1:
+                addClausesValue1(x, y);
+            case 2:
+                addClausesValue2(x, y);
+            case 3:
+                addClausesValue3(x, y);
+            default:
+                throw new ArithmeticException("Wrong format of the sensorValue (must be between 1 and 3)");
+        }
+    }
 
+    private void addClausesValue1(int x, int y) throws ContradictionException {
+        VecInt here = new VecInt(new int[] {x, y});
+        VecInt up = new VecInt(new int[] {x + 1, y});
+        VecInt down = new VecInt(new int[] {x - 1, y});
+        VecInt left = new VecInt(new int[] {x, y - 1});
+        VecInt right = new VecInt(new int[] {x, y + 1});
+
+        this.solver.addClause(here);
+        this.solver.addClause(up);
+        this.solver.addClause(down);
+        this.solver.addClause(left);
+        this.solver.addClause(right);
+    }
+
+    private void addClausesValue2(int x, int y) {
+
+    }
+
+    private void addClausesValue3(int x, int y) {
+
+    }
 
     /**
     *  This function should add all the clauses stored in the list
@@ -315,11 +344,12 @@ public class TreasureFinder  {
     *   Use the function addClause( VecInt ) to add each clause to the solver
     *
     **/
-    public void addLastFutureClausesToPastClauses() throws  IOException,
-            ContradictionException, TimeoutException
-    {
+    public void addLastFutureClausesToPastClauses() throws IOException, ContradictionException, TimeoutException {
+        for (VecInt newClause : this.futureToPast) {
+            this.solver.addClause(newClause);
+        }
 
-
+        this.futureToPast = new ArrayList<VecInt>();
     }
 
     /**

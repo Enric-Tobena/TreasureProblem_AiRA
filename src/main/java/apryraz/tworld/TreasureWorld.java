@@ -28,12 +28,10 @@ public class TreasureWorld {
    @param fileSteps file name with sequence of steps to perform
 
 **/
-public static void runStepsSequence( int wDim, int tX, int tY,
-                                    int numSteps, String fileSteps ) throws
-                               IOException,  ContradictionException, TimeoutException {
+public static void runStepsSequence(int wDim, int tX, int tY, int numSteps, String fileSteps) throws IOException, ContradictionException, TimeoutException {
   // Make instances of TreasureFinder agent and environment object classes
-   TreasureFinder TAgent  ;
-   TreasureWorldEnv EnvAgent  ;
+   TreasureFinder TAgent;
+   TreasureWorldEnv EnvAgent;
 
 
    // Set environment object, and load list of pirate positions
