@@ -30,8 +30,8 @@ public class TreasureWorld {
 **/
 public static void runStepsSequence(int wDim, int tX, int tY, int numSteps, String fileSteps) throws IOException, ContradictionException, TimeoutException {
   // Make instances of TreasureFinder agent and environment object classes
-   TreasureFinder TAgent;
-   TreasureWorldEnv EnvAgent;
+   TreasureFinder TAgent = new TreasureFinder(wDim);
+   TreasureWorldEnv EnvAgent = new TreasureWorldEnv(wDim, tX, tY);
 
 
    // Set environment object, and load list of pirate positions
@@ -55,9 +55,19 @@ public static void runStepsSequence(int wDim, int tX, int tY, int numSteps, Stri
 public static void main ( String[] args) throws ParseFormatException,
         IOException,  ContradictionException, TimeoutException {
 
-  // Here I run a concrete example, but you should read parameters from
-  // the command line, as decribed above.
-  runStepsSequence(  6, 3, 3, 5, "tests/steps1.txt"  );
+  if(args.length == 5) {
+      int worldDim = Integer.parseInt(args[0]);
+      int treasureX = Integer.parseInt(args[1]);
+      int treasureY = Integer.parseInt(args[2]);
+      int numSteps = Integer.parseInt(args[3]);
+      String fileSteps = args[4];
+
+      runStepsSequence(worldDim, treasureX, treasureY, numSteps, fileSteps);
+  } else {
+      runStepsSequence(  6, 3, 3, 5, "tests/steps1.txt");
+  }
+
 }
+
 
 }

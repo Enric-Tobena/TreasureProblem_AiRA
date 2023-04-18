@@ -306,39 +306,9 @@ public class TreasureFinder  {
     }
 
     private void addClauses(int x, int y, int sensorValue) throws ContradictionException {
-        switch (sensorValue) {
-            case 1:
-                addClausesValue1(x, y);
-            case 2:
-                addClausesValue2(x, y);
-            case 3:
-                addClausesValue3(x, y);
-            default:
-                throw new ArithmeticException("Wrong format of the sensorValue (must be between 1 and 3)");
-        }
-    }
-
-    private void addClausesValue1(int x, int y) throws ContradictionException {
-        VecInt here = new VecInt(new int[] {x, y});
-        VecInt up = new VecInt(new int[] {x + 1, y});
-        VecInt down = new VecInt(new int[] {x - 1, y});
-        VecInt left = new VecInt(new int[] {x, y - 1});
-        VecInt right = new VecInt(new int[] {x, y + 1});
-
-        this.solver.addClause(here);
-        this.solver.addClause(up);
-        this.solver.addClause(down);
-        this.solver.addClause(left);
-        this.solver.addClause(right);
-    }
-
-    private void addClausesValue2(int x, int y) {
 
     }
 
-    private void addClausesValue3(int x, int y) {
-
-    }
 
     /**
     *  This function should add all the clauses stored in the list
