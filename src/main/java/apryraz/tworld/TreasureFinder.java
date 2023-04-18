@@ -219,7 +219,7 @@ public class TreasureFinder  {
             return moveTo(nextPosition.x, nextPosition.y);
         } else {
             System.out.println("NO MORE steps to perform at agent!");
-            return (new AMessage("NOMESSAGE","",""));
+            return new AMessage("NOMESSAGE","","", "");
         }
     }
 
@@ -235,12 +235,13 @@ public class TreasureFinder  {
     *  @return returns the answer obtained from the environment object to the
     *           moveto message sent
     **/
+
     public AMessage moveTo( int x, int y )
     {
         // Tell the EnvironmentAgentID that we want  to move
         AMessage msg, ans;
 
-        msg = new AMessage("moveto", (new Integer(x)).toString(), (new Integer(y)).toString(), "" );
+        msg = new AMessage("moveto", Integer.toString(x), Integer.toString(y), "" );
         ans = EnvAgent.acceptMessage( msg );
         System.out.println("FINDER => moving to : (" + x + "," + y + ")");
 
@@ -269,12 +270,13 @@ public class TreasureFinder  {
      *
      *   @return return the answer given by the environment
     **/
+
     public AMessage DetectsAt( )
     {
         AMessage msg, ans;
 
-        msg = new AMessage( "detectsat", (new Integer(agentX)).toString(),
-                                       (new Integer(agentY)).toString(), "" );
+        msg = new AMessage( "detectsat", Integer.toString(agentX),
+                Integer.toString(agentY), "" );
         ans = EnvAgent.acceptMessage( msg );
         System.out.println("FINDER => detecting at : (" + agentX + "," + agentY + ")");
         return ans;
@@ -398,7 +400,7 @@ public class TreasureFinder  {
     public ISolver buildGamma() throws UnsupportedEncodingException,
             FileNotFoundException, IOException, ContradictionException
     {
-        int totalNumVariables;
+        int totalNumVariables = 100; //EL VALOR TIENE QUE SER MODIFICADO
 
         // You must set this variable to the total number of boolean variables
         // in your formula Gamma

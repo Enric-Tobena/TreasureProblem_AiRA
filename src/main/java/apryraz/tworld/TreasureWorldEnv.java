@@ -22,14 +22,12 @@ public class TreasureWorldEnv {
 * @param dim dimension of the world
 * @param tx  X position of Treasure
 * @param ty  Y position of Treasure
-* @param piratesFile File with list of pirates locations
 **/
-  public TreasureWorldEnv( int dim, int tx, int ty  ) {
-
+public TreasureWorldEnv( int dim, int tx, int ty  ) {
     TreasureX = tx;
     TreasureY = ty;
     WorldDim = dim;
-  }
+}
 
  
 
