@@ -321,7 +321,7 @@ public class TreasureFinder  {
             this.solver.addClause(newClause);
         }
 
-        this.futureToPast = new ArrayList<VecInt>();
+        this.futureToPast = new ArrayList<>();
     }
 
     /**
@@ -336,27 +336,27 @@ public class TreasureFinder  {
     * conclusions that were already added in previous steps, although this will not produce
     * any bad functioning in the reasoning process with the formula.
     **/
-    public void  performInferenceQuestions() throws  IOException,
-            ContradictionException, TimeoutException
-    {
-       // EXAMPLE code to check this for position (2,3):
-       // Get variable number for position 2,3 in past variables
-        int linealIndex = coordToLineal(2, 3, TreasureFutureOffset);
-       // Get the same variable, but in the past subset
-        int linealIndexPast = coordToLineal(2, 3, TreasurePastOffset);
+    public void performInferenceQuestions() throws IOException, ContradictionException, TimeoutException {
+        for (int x = 1; x <= WorldDim; x += 1) {
+            for (int y = 1; y <= WorldDim; y += 1) {
+                int linealIndex = coordToLineal(x, y, TreasureFutureOffset);
+                // Get the same variable, but in the past subset
+                int linealIndexPast = coordToLineal(x, y, TreasurePastOffset);
 
-        VecInt variablePositive = new VecInt();
-        variablePositive.insertFirst(linealIndex);
+                VecInt variablePositive = new VecInt();
+                variablePositive.insertFirst(linealIndex);
 
-        // Check if Gamma + variablePositive is unsatisfiable:
-        // This is only AN EXAMPLE for a specific position: (2,3)
-        if (!(solver.isSatisfiable(variablePositive))) {
-              // Add conclusion to list, but rewritten with respect to "past" variables
-              VecInt concPast = new VecInt();
-              concPast.insertFirst(-(linealIndexPast));
+                // Check if Gamma + variablePositive is unsatisfiable:
+                // This is only AN EXAMPLE for a specific position: (2,3)
+                if (!(solver.isSatisfiable(variablePositive))) {
+                    // Add conclusion to list, but rewritten with respect to "past" variables
+                    VecInt concPast = new VecInt();
+                    concPast.insertFirst(-(linealIndexPast));
 
-              futureToPast.add(concPast);
-              tfstate.set( 2 , 3 , "X" );
+                    futureToPast.add(concPast);
+                    tfstate.set( x , y , "X" );
+                }
+            }
         }
 
     }
