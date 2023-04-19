@@ -306,6 +306,7 @@ public class TreasureFinder  {
     }
 
     private void addClauses(int x, int y, int sensorValue) throws ContradictionException {
+        VecInt newEvidence = new VecInt();
 
     }
 
