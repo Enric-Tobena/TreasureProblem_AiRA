@@ -1,3 +1,5 @@
+package apryraz.tworld;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
@@ -68,7 +70,7 @@ public class TreasureFinderTest {
 /**
 *  Load a sequence of states from a file, and return the list
 *
-*  @param WDim        dimension of the world
+*  @param wDim        dimension of the world
 *  @param numStates   num of states to read from the file
 *  @param statesFile file name with sequence of target states, that should
 *                      be the resulting states after each movement in fileSteps
@@ -122,9 +124,9 @@ public class TreasureFinderTest {
       // You should make TreasureFinder and TreasureWorldEnv objects to  test.
       // Then load sequence of target states, load sequence of steps into the bAgent
       // and then test the sequence calling testMakeSimpleStep once for each step.
-     TreasureFinder TAgent  ;
+     TreasureFinder TAgent = new TreasureFinder(wDim) ;
      // load information about the World into the EnvAgent
-     TreasureWorldEnv EnvAgent  ;
+     TreasureWorldEnv EnvAgent = new TreasureWorldEnv(wDim, tX, tY);
      // Load list of states
      ArrayList<TFState> seqOfStates ;
 
