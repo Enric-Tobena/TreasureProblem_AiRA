@@ -91,7 +91,7 @@ public class TreasureFinder  {
      @param WDim the dimension of the Treasure World
 
    **/
-    public   TreasureFinder(int WDim)
+    public TreasureFinder(int WDim)
     {
 
         WorldDim = WDim;
