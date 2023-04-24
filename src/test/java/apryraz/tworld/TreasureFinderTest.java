@@ -41,6 +41,9 @@ public class TreasureFinderTest {
     // Check (assert) whether the resulting state is equal to
     //  the targetState after performing action runNextStep with bAgent
 
+      tAgent.runNextStep();
+        assertEquals(tAgent.getState(), targetState);
+
   }
 
 
@@ -129,6 +132,9 @@ public class TreasureFinderTest {
      TreasureWorldEnv EnvAgent = new TreasureWorldEnv(wDim, tX, tY);
      // Load list of states
      ArrayList<TFState> seqOfStates ;
+     seqOfStates = loadListOfTargetStates(wDim, numSteps, fileStates);
+
+
 
 
      // Set environment agent and load list of steps into the agent
@@ -137,6 +143,10 @@ public class TreasureFinderTest {
 
      // Test here the sequence of steps and check the resulting states with the
      // ones in seqOfStates
+
+      for (int i = 0; i < numSteps; i++) {
+          testMakeSimpleStep(TAgent, seqOfStates.get(i));
+      }
 
 
   }
