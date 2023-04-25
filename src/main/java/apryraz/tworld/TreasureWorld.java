@@ -65,7 +65,7 @@ public static void main ( String[] args) throws ParseFormatException,
 
       runStepsSequence(worldDim, treasureX, treasureY, numSteps, fileSteps);
   } else {
-      runStepsSequence(  6, 3, 3, 5, "tests/steps1.txt");
+      runStepsSequence(6, 3, 3, 5, "tests/java/steps1.txt");
   }
 
 }

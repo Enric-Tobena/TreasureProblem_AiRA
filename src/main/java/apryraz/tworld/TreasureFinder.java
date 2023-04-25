@@ -79,7 +79,9 @@ public class TreasureFinder  {
 **/
     int TreasurePastOffset;
     int TreasureFutureOffset;
-    int DetectorOffset;
+    int DetectorOffset1;
+    int DetectorOffset2;
+    int DetectorOffset3;
     int actualLiteral;
 
 
@@ -290,24 +292,30 @@ public class TreasureFinder  {
     *   @param ans message obtained to the query "Detects at (x,y)?".
     *          It will a message with four fields: detected  x y  [1,2,3]
     **/
-    public void processDetectorSensorAnswer( AMessage ans ) throws IOException, ContradictionException, TimeoutException {
-      if (ans.getComp(0).equals("detected")) {
-        int x = Integer.parseInt(ans.getComp(1));
-        int y = Integer.parseInt(ans.getComp(2));
-        int sensorValue = Integer.parseInt(ans.getComp(3));
-
-        addClauses(x, y, sensorValue);
-         // Call your function/functions to add the evidence clauses
-         // to Gamma to then be able to infer new NOT possible positions
+    public void processDetectorSensorAnswer(AMessage ans) throws IOException, ContradictionException, TimeoutException {
+        if (ans.getComp(0).equals("detected")) {
+            int x = Integer.parseInt(ans.getComp(1));
+            int y = Integer.parseInt(ans.getComp(2));
+            int sensorValue = Integer.parseInt(ans.getComp(3));
 
 
-         // CALL your functions HERE
-       }  
+            for (int i = 0; i < sensorValue; i++) {
+
+                if (sensorValue == '0') {
+                    VecInt evidence = new VecInt();
+                    if (i == 0) {
+                        evidence.insertFirst(-coordToLineal(x, y, DetectorOffset1));
+                    } else if (i == 1) {
+                        evidence.insertFirst(-coordToLineal(x, y, DetectorOffset2));
+                    } else if (i == 2) {
+                        evidence.insertFirst(-coordToLineal(x, y, DetectorOffset3));
+                    }
+                    solver.addClause(evidence);
+                }
+            }
+        }
     }
 
-    private void addClauses(int x, int y, int sensorValue) throws ContradictionException {
-        VecInt newEvidence = new VecInt();
-    }
 
 
     /**
@@ -317,11 +325,11 @@ public class TreasureFinder  {
     *
     **/
     public void addLastFutureClausesToPastClauses() throws IOException, ContradictionException, TimeoutException {
-        for (VecInt newClause : this.futureToPast) {
-            this.solver.addClause(newClause);
+        for (VecInt newClause : futureToPast) {
+            solver.addClause(newClause);
         }
 
-        this.futureToPast = new ArrayList<>();
+        futureToPast = new ArrayList<>();
     }
 
     /**
@@ -381,27 +389,133 @@ public class TreasureFinder  {
         // This variable is used to generate, in a particular sequential order,
         // the variable indentifiers of all the variables
         actualLiteral = 1;
+        t_past();
+        t_future();
+        pastToFuture();
+        noReadingSensorOne();
+        noReadingSensorTwo();
+        noReadingSensorThree();
+
+
 
         // call here functions to add the different sets of clauses
         // of Gamma to the solver object
 
+
+
         return solver;
     }
 
+    private void t_past() throws ContradictionException {
+        TreasurePastOffset = actualLiteral;
+        VecInt clause = new VecInt();
+        for (int i = 0; i < WorldLinealDim; i++) {
+            clause.insertFirst(actualLiteral);
+            actualLiteral++;
+        }
+        solver.addClause(clause);
+    }
+    private void t_future() throws ContradictionException {
+        TreasureFutureOffset = actualLiteral;
+        VecInt clause = new VecInt();
+        for (int i = 0; i < WorldLinealDim; i++) {
+            clause.insertFirst(actualLiteral);
+            actualLiteral++;
+        }
+        solver.addClause(clause);
+    }
+    private void pastToFuture() throws ContradictionException {
+        VecInt clause;
+        for (int i = 0; i < WorldLinealDim; i++) {
+            clause = new VecInt();
+            clause.insertFirst(i + TreasurePastOffset);
+            clause.insertFirst(-(i + TreasureFutureOffset));
+            solver.addClause(clause);
+        }
+    }
 
-     /**
-     * Convert a coordinate pair (x,y) to the integer value  t_[x,y]
-     * of variable that stores that information in the formula, using
-     * offset as the initial index for that subset of position variables
-     * (past and future position variables have different variables, so different
-     * offset values)
-     *
-     *  @param x x coordinate of the position variable to encode
-     *  @param y y coordinate of the position variable to encode
-     *  @param offset initial value for the subset of position variables
-     *         (past or future subset)
-     *  @return the integer indentifer of the variable  b_[x,y] in the formula
-    **/
+    private void noReadingSensorOne() throws ContradictionException {
+        DetectorOffset1 = actualLiteral;
+        for (int x = 1; x <= WorldDim; x++) {
+            for (int y = 1; y <= WorldDim; y++) {
+
+                int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}};
+                int varValue = coordToLineal(x, y, DetectorOffset1);
+                for (int i = 0; i < sensor.length; i++) {
+                    VecInt clause = new VecInt();
+                    int futureLiteral = coordToLineal(sensor[i][0], sensor[i][1], TreasureFutureOffset);
+                    clause.insertFirst(-futureLiteral);
+                    clause.insertFirst(varValue);
+                    solver.addClause(clause);
+                    }
+                }
+                actualLiteral++;
+            }
+
+        }
+
+    private void noReadingSensorTwo() throws ContradictionException {
+        DetectorOffset1 = actualLiteral;
+        for (int x = 1; x <= WorldDim; x++) {
+            for (int y = 1; y <= WorldDim; y++) {
+
+                int[][] sensor = {{x+1, y+1}, {x+1, y-1}, {x-1, y-1}, {x-1, y+1}};
+                int varValue = coordToLineal(x, y, DetectorOffset1);
+                for (int i = 0; i < sensor.length; i++) {
+                    VecInt clause = new VecInt();
+                    int futureLiteral = coordToLineal(sensor[i][0], sensor[i][1], TreasureFutureOffset);
+                    clause.insertFirst(-futureLiteral);
+                    clause.insertFirst(varValue);
+                    solver.addClause(clause);
+                }
+            }
+            actualLiteral++;
+        }
+
+    }
+
+    private void noReadingSensorThree() throws ContradictionException {
+        DetectorOffset1 = actualLiteral;
+        for (int x = 1; x <= WorldDim; x++) {
+            for (int y = 1; y <= WorldDim; y++) {
+
+
+                int[][] sensor = {{x+1, y-1}, {x+1, y}, {x+1, y+1}, {x, y-1}, {x, y}, {x, y+1}, {x-1, y-1}, {x-1, y}, {x-1, y+1}};
+                int varValue = coordToLineal(x, y, DetectorOffset1);
+                for (int i = 0; i < sensor.length; i++) {
+                    VecInt clause = new VecInt();
+                    int futureLiteral = coordToLineal(sensor[i][0], sensor[i][1], TreasureFutureOffset);
+                    clause.insertFirst(-futureLiteral);
+                    clause.insertFirst(varValue);
+                    solver.addClause(clause);
+                }
+            }
+            actualLiteral++;
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+    /**
+         * Convert a coordinate pair (x,y) to the integer value  t_[x,y]
+         * of variable that stores that information in the formula, using
+         * offset as the initial index for that subset of position variables
+         * (past and future position variables have different variables, so different
+         * offset values)
+         *
+         *  @param x x coordinate of the position variable to encode
+         *  @param y y coordinate of the position variable to encode
+         *  @param offset initial value for the subset of position variables
+         *         (past or future subset)
+         *  @return the integer indentifer of the variable  b_[x,y] in the formula
+        **/
     public int coordToLineal(int x, int y, int offset) {
         return ((x - 1) * WorldDim) + (y - 1) + offset;
     }
