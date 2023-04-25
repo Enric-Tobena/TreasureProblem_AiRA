@@ -1,4 +1,4 @@
 test1 (states1.txt steps1.txt  ):  6x6 world, treasure at 3,3,       5 steps 
-test2 (states2.txt  steps2.txt  ):  7x7 world, treasure at 4,4,     5 steps 
+test2 (states2.txt  steps2.txt  ):  7x7 world, treasure at 4,4,      6 steps 
 test3 (states3.txt  steps3.txt  ):  8x8 world, treasure at 5,4,      7 steps 
-test4 (states4.txt  steps4.txt  ):  10x10 world, treasure at 3,7,    6 steps
+test4 (states4.txt  steps4.txt  ):  10x10 world, treasure at 6,5,    7 steps

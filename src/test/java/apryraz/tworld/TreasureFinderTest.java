@@ -172,4 +172,57 @@ public class TreasureFinderTest {
         }
 
     }
+    @Test
+    public void TWorldTest2() throws
+            IOException, ContradictionException, TimeoutException {
+
+        var fileSteps = "src/test/tests/steps2.txt";
+        if (!new java.io.File(fileSteps).exists()) {
+            System.out.println("MSG.   => Steps file not found");
+            exit(1);
+        }
+        var fileStates = "src/test/tests/states2.txt";
+        if (!new java.io.File(fileStates).exists()) {
+            System.out.println("MSG.   => States file not found");
+            exit(1);
+
+            testMakeSeqOfSteps(7, 4, 4, 6, fileSteps, fileSteps);
+        }
+    }
+    @Test
+    public void TWorldTest3() throws
+            IOException, ContradictionException, TimeoutException {
+
+        var fileSteps = "src/test/tests/steps3.txt";
+        if (!new java.io.File(fileSteps).exists()) {
+            System.out.println("MSG.   => Steps file not found");
+            exit(1);
+        }
+        var fileStates = "src/test/tests/states3.txt";
+        if (!new java.io.File(fileStates).exists()) {
+            System.out.println("MSG.   => States file not found");
+            exit(1);
+
+            testMakeSeqOfSteps(8, 5, 4, 7, fileSteps, fileSteps);
+        }
+    }
+    @Test
+    public void TWorldTest4() throws
+            IOException, ContradictionException, TimeoutException {
+
+        var fileSteps = "src/test/tests/steps4.txt";
+        if (!new java.io.File(fileSteps).exists()) {
+            System.out.println("MSG.   => Steps file not found");
+            exit(1);
+        }
+        var fileStates = "src/test/tests/states4.txt";
+        if (!new java.io.File(fileStates).exists()) {
+            System.out.println("MSG.   => States file not found");
+            exit(1);
+
+            testMakeSeqOfSteps(10, 6, 5, 7, fileSteps, fileSteps);
+        }
+    }
+
+
 }
