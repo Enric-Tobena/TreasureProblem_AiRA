@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import static java.lang.System.exit;
 
+import org.sat4j.core.VecInt;
 import org.sat4j.specs.*;
 import org.sat4j.minisat.*;
 import org.sat4j.reader.*;
@@ -18,7 +19,10 @@ import org.sat4j.reader.*;
 
 import apryraz.tworld.*;
 
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.*;
 
 /**
@@ -42,7 +46,8 @@ public class TreasureFinderTest {
         //  the targetState after performing action runNextStep with bAgent
 
         tAgent.runNextStep();
-        assertEquals(tAgent.getState(), targetState);
+        assertTrue(targetState.equals(tAgent.getState()));
+
 
     }
 
@@ -145,6 +150,7 @@ public class TreasureFinderTest {
         }
 
 
+
     }
 
     /**
@@ -223,6 +229,67 @@ public class TreasureFinderTest {
             testMakeSeqOfSteps(10, 6, 5, 7, fileSteps, fileSteps);
         }
     }
+
+
+
+    @Test
+    public void testSolver() throws ContradictionException, TimeoutException {
+        ISolver solver;
+        int totalNumVariables;
+
+        totalNumVariables = 2;
+        solver = SolverFactory.newDefault();
+        solver.setTimeout(3600);
+        solver.newVar(totalNumVariables);
+
+        // add a simple implication: 1 -> 2
+        VecInt implication = new VecInt();
+        implication.insertFirst(2);
+        implication.insertFirst(-1);
+
+        solver.addClause(implication);
+
+        checkImplicationSatisfiability(solver, implication);
+        checkImplicationUnsatisifiability(solver, implication);
+    }
+
+    public void checkImplicationSatisfiability(ISolver solver, VecInt implication) throws TimeoutException {
+        // case 1: (-1 or 2) and 1
+        VecInt toPerformInference1 = new VecInt();
+        toPerformInference1.insertFirst(-(implication.get(0)));
+        Assert.assertTrue(solver.isSatisfiable(toPerformInference1));
+
+        // case 2: (-1 or 2) and -2
+        VecInt toPerformInference2 = new VecInt();
+        toPerformInference2.insertFirst(-(implication.get(1)));
+        Assert.assertTrue(solver.isSatisfiable(toPerformInference2));
+
+        // case 3: (-1 or 2) and -1
+        VecInt toPerformInference3 = new VecInt();
+        toPerformInference3.insertFirst((implication.get(0)));
+        Assert.assertTrue(solver.isSatisfiable(toPerformInference3));
+
+        // case 4: (-1 or 2) and 2
+        VecInt toPerformInference4 = new VecInt();
+        toPerformInference4.insertFirst((implication.get(1)));
+        Assert.assertTrue(solver.isSatisfiable(toPerformInference4));
+
+        // case 5: (-1 or 2) and (-1 and 2)
+        VecInt toPerformInference5 = new VecInt();
+        toPerformInference5.insertFirst((implication.get(1)));
+        toPerformInference5.insertFirst((implication.get(0)));
+        Assert.assertTrue(solver.isSatisfiable(toPerformInference5));
+
+    }
+    public void checkImplicationUnsatisifiability(ISolver solver, VecInt implication) throws TimeoutException {
+        // case 4: (-1 or 2) and (1 and -2)
+        VecInt toPerformInference = new VecInt();
+        toPerformInference.insertFirst(-(implication.get(0)));
+        toPerformInference.insertFirst(-(implication.get(1)));
+
+        Assert.assertFalse(solver.isSatisfiable(toPerformInference));
+    }
+
 
 
 }

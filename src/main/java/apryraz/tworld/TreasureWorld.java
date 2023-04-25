@@ -8,6 +8,7 @@ import org.sat4j.minisat.*;
 import org.sat4j.reader.*;
 
 import static java.lang.System.exit;
+import static java.lang.System.setErr;
 
 
 /**
@@ -68,6 +69,7 @@ public static void main ( String[] args) throws ParseFormatException,
         runStepsSequence(worldDim, treasureX, treasureY, numSteps, fileSteps);
 
     } else {
+        //print error message
         System.out.println("Wrong number of arguments");
         exit(1);
     }

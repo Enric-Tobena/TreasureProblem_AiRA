@@ -298,9 +298,7 @@ public class TreasureFinder  {
             int y = Integer.parseInt(ans.getComp(2));
             int sensorValue = Integer.parseInt(ans.getComp(3));
 
-
             for (int i = 0; i < sensorValue; i++) {
-
                 if (sensorValue == '0') {
                     VecInt evidence = new VecInt();
                     if (i == 0) {
@@ -325,11 +323,11 @@ public class TreasureFinder  {
     *
     **/
     public void addLastFutureClausesToPastClauses() throws IOException, ContradictionException, TimeoutException {
-        for (VecInt newClause : futureToPast) {
-            solver.addClause(newClause);
+        if (futureToPast != null) {
+            for (VecInt vecInt : futureToPast) {
+                solver.addClause(vecInt);
+            }
         }
-
-        futureToPast = new ArrayList<>();
     }
 
     /**
@@ -397,7 +395,6 @@ public class TreasureFinder  {
         noReadingSensorThree();
 
 
-
         // call here functions to add the different sets of clauses
         // of Gamma to the solver object
 
@@ -435,10 +432,8 @@ public class TreasureFinder  {
     }
 
     private void noReadingSensorOne() throws ContradictionException {
-        DetectorOffset1 = actualLiteral;
         for (int x = 1; x <= WorldDim; x++) {
             for (int y = 1; y <= WorldDim; y++) {
-
                 int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}};
                 int varValue = coordToLineal(x, y, DetectorOffset1);
                 for (int i = 0; i < sensor.length; i++) {
@@ -449,13 +444,11 @@ public class TreasureFinder  {
                     solver.addClause(clause);
                     }
                 }
-                actualLiteral++;
             }
 
         }
 
     private void noReadingSensorTwo() throws ContradictionException {
-        DetectorOffset1 = actualLiteral;
         for (int x = 1; x <= WorldDim; x++) {
             for (int y = 1; y <= WorldDim; y++) {
 
@@ -469,13 +462,11 @@ public class TreasureFinder  {
                     solver.addClause(clause);
                 }
             }
-            actualLiteral++;
         }
 
     }
 
     private void noReadingSensorThree() throws ContradictionException {
-        DetectorOffset1 = actualLiteral;
         for (int x = 1; x <= WorldDim; x++) {
             for (int y = 1; y <= WorldDim; y++) {
 
@@ -490,16 +481,9 @@ public class TreasureFinder  {
                     solver.addClause(clause);
                 }
             }
-            actualLiteral++;
         }
 
     }
-
-
-
-
-
-
 
 
 
