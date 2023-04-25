@@ -7,6 +7,8 @@ import org.sat4j.specs.*;
 import org.sat4j.minisat.*;
 import org.sat4j.reader.*;
 
+import static java.lang.System.exit;
+
 
 /**
   The class for the main program of the Barcenas World
@@ -56,18 +58,19 @@ public static void runStepsSequence(int wDim, int tX, int tY, int numSteps, Stri
 public static void main ( String[] args) throws ParseFormatException,
         IOException,  ContradictionException, TimeoutException {
 
-  if(args.length == 5) {
-      int worldDim = Integer.parseInt(args[0]);
-      int treasureX = Integer.parseInt(args[1]);
-      int treasureY = Integer.parseInt(args[2]);
-      int numSteps = Integer.parseInt(args[3]);
-      String fileSteps = args[4];
+    if (args.length == 5) {
+        int worldDim = Integer.parseInt(args[0]);
+        int treasureX = Integer.parseInt(args[1]);
+        int treasureY = Integer.parseInt(args[2]);
+        int numSteps = Integer.parseInt(args[3]);
+        String fileSteps = args[4];
 
-      runStepsSequence(worldDim, treasureX, treasureY, numSteps, fileSteps);
-  } else {
-      runStepsSequence(6, 3, 3, 5, "tests/java/steps1.txt");
-  }
+        runStepsSequence(worldDim, treasureX, treasureY, numSteps, fileSteps);
 
+    } else {
+        System.out.println("Wrong number of arguments");
+        exit(1);
+    }
 }
 
 
