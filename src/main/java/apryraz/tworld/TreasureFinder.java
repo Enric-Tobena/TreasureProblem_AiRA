@@ -41,7 +41,7 @@ public class TreasureFinder  {
 *  Array of clauses that represent conclusiones obtained in the last
 * call to the inference function, but rewritten using the "past" variables
 **/
-    ArrayList<VecInt> futureToPast = null;
+    ArrayList<VecInt> futureToPast = new ArrayList<VecInt>();
 /**
 * the current state of knowledge of the agent (what he knows about
 * every position of the world)
@@ -311,12 +311,15 @@ public class TreasureFinder  {
     *
     **/
     public void addLastFutureClausesToPastClauses() throws IOException, ContradictionException, TimeoutException {
-        if (futureToPast != null) {
-            for (VecInt vecInt : futureToPast) {
-                solver.addClause(vecInt);
+
+            for (VecInt clause : futureToPast) {
+                solver.addClause(clause);
             }
+
+            futureToPast = new ArrayList<>();
+            //futureToPast.clear();
         }
-    }
+
 
     /**
     * This function should check, using the future variables related
@@ -341,19 +344,19 @@ public class TreasureFinder  {
                 System.out.println(linealIndex);
                 variablePositive.insertFirst(linealIndex);
 
-                // Check if Gamma + variablePositive is unsatisfiable:
-                // This is only AN EXAMPLE for a specific position: (2,3)
+
+                // Check if the variable is already in the list
                 if (!(solver.isSatisfiable(variablePositive))) {
                     // Add conclusion to list, but rewritten with respect to "past" variables
                     VecInt concPast = new VecInt();
                     concPast.insertFirst(-(linealIndexPast));
 
                     futureToPast.add(concPast);
-                    tfstate.set( x , y , "X" );
+                    tfstate.set(x, y, "X");
                 }
             }
-        }
 
+        }
     }
 
     /**
@@ -376,6 +379,7 @@ public class TreasureFinder  {
         // This variable is used to generate, in a particular sequential order,
         // the variable indentifiers of all the variables
         actualLiteral = 1;
+
 
         // call here functions to add the different sets of clauses
         // of Gamma to the solver object

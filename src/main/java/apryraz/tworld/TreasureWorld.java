@@ -66,6 +66,7 @@ public static void main ( String[] args) throws ParseFormatException,
         int numSteps = Integer.parseInt(args[3]);
         String fileSteps = args[4];
 
+
         runStepsSequence(worldDim, treasureX, treasureY, numSteps, fileSteps);
 
     }
