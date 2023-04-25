@@ -174,7 +174,7 @@ public class TreasureFinderTest {
             System.out.println("MSG.   => States file not found");
             exit(1);
 
-            testMakeSeqOfSteps(6, 3, 3, 5, fileSteps, fileSteps);
+            testMakeSeqOfSteps(6, 3, 3, 5, fileSteps, fileStates);
         }
 
     }
@@ -192,7 +192,7 @@ public class TreasureFinderTest {
             System.out.println("MSG.   => States file not found");
             exit(1);
 
-            testMakeSeqOfSteps(7, 4, 4, 6, fileSteps, fileSteps);
+            testMakeSeqOfSteps(7, 4, 4, 6, fileSteps, fileStates);
         }
     }
     @Test
@@ -209,7 +209,7 @@ public class TreasureFinderTest {
             System.out.println("MSG.   => States file not found");
             exit(1);
 
-            testMakeSeqOfSteps(8, 5, 4, 7, fileSteps, fileSteps);
+            testMakeSeqOfSteps(8, 5, 4, 7, fileSteps, fileStates);
         }
     }
     @Test
@@ -226,7 +226,7 @@ public class TreasureFinderTest {
             System.out.println("MSG.   => States file not found");
             exit(1);
 
-            testMakeSeqOfSteps(10, 6, 5, 7, fileSteps, fileSteps);
+            testMakeSeqOfSteps(10, 6, 5, 7, fileSteps, fileStates);
         }
     }
 

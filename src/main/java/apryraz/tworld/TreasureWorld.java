@@ -68,11 +68,9 @@ public static void main ( String[] args) throws ParseFormatException,
 
         runStepsSequence(worldDim, treasureX, treasureY, numSteps, fileSteps);
 
-    } else {
-        //print error message
-        System.out.println("Wrong number of arguments");
-        exit(1);
     }
+
+    runStepsSequence(7, 4, 4, 6, "src/test/tests/steps2.txt");
 }
 
 
