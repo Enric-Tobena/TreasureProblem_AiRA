@@ -1,23 +1,19 @@
 package apryraz.tworld;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+
 import static java.lang.System.exit;
 
 import org.sat4j.core.VecInt;
 import org.sat4j.specs.*;
 import org.sat4j.minisat.*;
-import org.sat4j.reader.*;
 
-
-import apryraz.tworld.*;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;

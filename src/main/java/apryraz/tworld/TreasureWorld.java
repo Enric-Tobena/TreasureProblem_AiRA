@@ -4,11 +4,7 @@ package apryraz.tworld;
 
 import java.io.IOException;
 import org.sat4j.specs.*;
-import org.sat4j.minisat.*;
 import org.sat4j.reader.*;
-
-import static java.lang.System.exit;
-import static java.lang.System.setErr;
 
 
 /**
