@@ -296,23 +296,79 @@ public class TreasureFinder {
             VecInt evidence = new VecInt();
             if (sensorValue == 1) {
                 System.out.println("WAR => adding evidence for detector 1 at : (" + x + "," + y + ")");
+                discardSensor1(x, y);
                 evidence.insertFirst(-coordToLineal(x, y, DetectorOffset1));
                 solver.addClause(evidence);
             } else if (sensorValue == 2) {
                 System.out.println("WAR => adding evidence for detector 2 at : (" + x + "," + y + ")");
+                discardSensor2(x, y);
                 evidence.insertFirst(-coordToLineal(x, y, DetectorOffset2));
                 solver.addClause(evidence);
             } else if (sensorValue == 3) {
                 System.out.println("WAR => adding evidence for detector 3 at : (" + x + "," + y + ")");
+                discardSensor3(x, y);
                 evidence.insertFirst(-coordToLineal(x, y, DetectorOffset3));
                 solver.addClause(evidence);
+            } else {
+                discardNoSensorNumber(x, y);
             }
 
 
             }
         }
 
+    private void discardSensor1(int x, int y) {
+        int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}};
+        for(int i = 1; i <= WorldDim; i++) {
+            for(int j = 1; j <= WorldDim; j++) {
+                if(!checkPosition(i, j, sensor)) {
+                    tfstate.set(i, j, "X");
+                }
+            }
+        }
+    }
 
+    private void discardSensor2(int x, int y) {
+        int[][] sensor = {{x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}};
+        for(int i = 1; i <= WorldDim; i++) {
+            for(int j = 1; j <= WorldDim; j++) {
+                if(!checkPosition(i, j, sensor)) {
+                    tfstate.set(i, j, "X");
+                }
+            }
+        }
+    }
+
+    private void discardSensor3(int x, int y) {
+        int[][] sensor = {{x + 1, y + 1}, {x + 1, y}, {x + 1, y + 1}, {x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y - 1}, {x - 1, y}, {x - 1, y + 1}};
+        for(int i = 1; i <= WorldDim; i++) {
+            for(int j = 1; j <= WorldDim; j++) {
+                if(!checkPosition(i, j, sensor)) {
+                    tfstate.set(i, j, "X");
+                }
+            }
+        }
+    }
+
+    private void discardNoSensorNumber(int x, int y) {
+        int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}, {x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}, {x + 1, y + 1}, {x + 1, y}, {x + 1, y + 1}, {x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y - 1}, {x - 1, y}, {x - 1, y + 1}};
+        for(int i = 1; i <= WorldDim; i++) {
+            for(int j = 1; j <= WorldDim; j++) {
+                if(checkPosition(i, j, sensor)) {
+                    tfstate.set(i, j, "X");
+                }
+            }
+        }
+    }
+
+    private boolean checkPosition(int i, int j, int[][] sensor) {
+        for(int k = 0; k < sensor.length; k++) {
+            if(i == sensor[k][0] && j == sensor[k][1]) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
     /**
@@ -354,15 +410,12 @@ public class TreasureFinder {
                 VecInt variablePositive = new VecInt();
                 variablePositive.insertFirst(linealIndex);
 
-
-
                 // Check if the variable is already in the list
                 if (!(solver.isSatisfiable(variablePositive))) {
                     VecInt concPast = new VecInt();
                     concPast.insertFirst(-(linealIndexPast));
 
                     futureToPast.add(concPast);
-                    tfstate.set(x, y, "X");
                 }
             }
 
@@ -504,24 +557,6 @@ public class TreasureFinder {
     }
 
 
-
-
-
-
-
-
-
-
-
-    private boolean notInSensor(int x, int y, int[][] sensor) {
-        // Check if the variable is already in the list
-        for (int[] ints : sensor) {
-            if (x == ints[0] && y == ints[1]) {
-                return false;
-            }
-        }
-        return true;
-    }
 
 
     /**

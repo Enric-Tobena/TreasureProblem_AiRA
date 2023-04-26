@@ -67,7 +67,7 @@ public static void main ( String[] args) throws ParseFormatException,
 
     }
 
-    runStepsSequence(6, 3, 3, 5, "src/test/tests/steps1.txt");
+    runStepsSequence(7, 4, 4, 6, "src/test/tests/steps2.txt");
 }
 
 
