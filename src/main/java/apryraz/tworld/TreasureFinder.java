@@ -10,6 +10,7 @@ import org.sat4j.specs.TimeoutException;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,66 +27,65 @@ import static java.lang.System.exit;
 public class TreasureFinder {
 
 
-/**
-  * The list of steps to perform
-**/
+    /**
+     * The list of steps to perform
+     **/
     ArrayList<Position> listOfSteps;
-/**
-* index to the next movement to perform, and total number of movements
-**/
+    /**
+     * index to the next movement to perform, and total number of movements
+     **/
     int idNextStep, numMovements;
-/**
-*  Array of clauses that represent conclusiones obtained in the last
-* call to the inference function, but rewritten using the "past" variables
-**/
+    /**
+     * Array of clauses that represent conclusiones obtained in the last
+     * call to the inference function, but rewritten using the "past" variables
+     **/
     ArrayList<VecInt> futureToPast = new ArrayList<VecInt>();
-/**
-* the current state of knowledge of the agent (what he knows about
-* every position of the world)
-**/
+    /**
+     * the current state of knowledge of the agent (what he knows about
+     * every position of the world)
+     **/
     TFState tfstate;
-/**
-*   The object that represents the interface to the Treasure World
-**/
-   TreasureWorldEnv EnvAgent;
-/**
-*   SAT solver object that stores the logical boolean formula with the rules
-*   and current knowledge about not possible locations for Treasure
-**/
+    /**
+     * The object that represents the interface to the Treasure World
+     **/
+    TreasureWorldEnv EnvAgent;
+    /**
+     * SAT solver object that stores the logical boolean formula with the rules
+     * and current knowledge about not possible locations for Treasure
+     **/
     ISolver solver;
-/**
-*   Agent position in the world
-**/
+    /**
+     * Agent position in the world
+     **/
     int agentX, agentY;
-/**
-*  Dimension of the world and total size of the world (Dim^2)
-**/
+    /**
+     * Dimension of the world and total size of the world (Dim^2)
+     **/
     int WorldDim, WorldLinealDim;
 
-/**
-*    This set of variables CAN be use to mark the beginning of different subsets
-*    of variables in your propositional formula (but you may have more sets of
-*    variables in your solution or use totally different variables to identify
-     your different subsets of variables).
-**/
+    /**
+     * This set of variables CAN be use to mark the beginning of different subsets
+     * of variables in your propositional formula (but you may have more sets of
+     * variables in your solution or use totally different variables to identify
+     * your different subsets of variables).
+     **/
     int TreasurePastOffset;
     int TreasureFutureOffset;
     int DetectorOffset1;
     int DetectorOffset2;
     int DetectorOffset3;
+    int DetectorOffsetN;
     int actualLiteral;
 
 
-   /**
-     The class constructor must create the initial Boolean formula with the
-     rules of the Treasure World, initialize the variables for indicating
-     that we do not have yet any movements to perform, make the initial state.
-
-     @param WDim the dimension of the Treasure World
-
-   **/
-    public TreasureFinder(int WDim)
-    {
+    /**
+     * The class constructor must create the initial Boolean formula with the
+     * rules of the Treasure World, initialize the variables for indicating
+     * that we do not have yet any movements to perform, make the initial state.
+     *
+     * @param WDim the dimension of the Treasure World
+     **/
+    public TreasureFinder(int WDim) {
 
         WorldDim = WDim;
         WorldLinealDim = WorldDim * WorldDim;
@@ -106,31 +106,28 @@ public class TreasureFinder {
     }
 
     /**
-      Store a reference to the Environment Object that will be used by the
-      agent to interact with the Treasure World, by sending messages and getting
-      answers to them. This function must be called before trying to perform any
-      steps with the agent.
-
-      @param environment the Environment object
-
-    **/
-    public void setEnvironment( TreasureWorldEnv environment ) {
-         EnvAgent =  environment;
+     * Store a reference to the Environment Object that will be used by the
+     * agent to interact with the Treasure World, by sending messages and getting
+     * answers to them. This function must be called before trying to perform any
+     * steps with the agent.
+     *
+     * @param environment the Environment object
+     **/
+    public void setEnvironment(TreasureWorldEnv environment) {
+        EnvAgent = environment;
     }
 
 
     /**
-      Load a sequence of steps to be performed by the agent. This sequence will
-      be stored in the listOfSteps ArrayList of the agent.  Steps are represented
-      as objects of the class Position.
-
-      @param numSteps number of steps to read from the file
-      @param stepsFile the name of the text file with the line that contains
-                       the sequence of steps: x1,y1 x2,y2 ...  xn,yn
-
-    **/
-    public void loadListOfSteps( int numSteps, String stepsFile )
-    {
+     * Load a sequence of steps to be performed by the agent. This sequence will
+     * be stored in the listOfSteps ArrayList of the agent.  Steps are represented
+     * as objects of the class Position.
+     *
+     * @param numSteps  number of steps to read from the file
+     * @param stepsFile the name of the text file with the line that contains
+     *                  the sequence of steps: x1,y1 x2,y2 ...  xn,yn
+     **/
+    public void loadListOfSteps(int numSteps, String stepsFile) {
         String[] stepsList;
         String steps = ""; // Prepare a list of movements to try with the FINDER Agent
         try {
@@ -147,7 +144,7 @@ public class TreasureFinder {
         }
         stepsList = steps.split(" ");
         listOfSteps = new ArrayList<Position>(numSteps);
-        for (int i = 0 ; i < numSteps ; i++ ) {
+        for (int i = 0; i < numSteps; i++) {
             String[] coords = stepsList[i].split(",");
             listOfSteps.add(new Position(Integer.parseInt(coords[0]), Integer.parseInt(coords[1])));
         }
@@ -156,58 +153,54 @@ public class TreasureFinder {
     }
 
     /**
-     *    Returns the current state of the agent.
+     * Returns the current state of the agent.
      *
-     *    @return the current state of the agent, as an object of class TFState
-    **/
-    public TFState getState()
-    {
+     * @return the current state of the agent, as an object of class TFState
+     **/
+    public TFState getState() {
         return tfstate;
     }
 
     /**
-    *    Execute the next step in the sequence of steps of the agent, and then
-    *    use the agent sensor to get information from the environment. In the
-    *    original Treasure World, this would be to use the Smelll Sensor to get
-    *    a binary answer, and then to update the current state according to the
-    *    result of the logical inferences performed by the agent with its formula.
-    *
-    **/
-    public void runNextStep() throws IOException,  ContradictionException, TimeoutException
-    {
-          
-          // Add the conclusions obtained in the previous step
-          // but as clauses that use the "past" variables
-          addLastFutureClausesToPastClauses();
+     * Execute the next step in the sequence of steps of the agent, and then
+     * use the agent sensor to get information from the environment. In the
+     * original Treasure World, this would be to use the Smelll Sensor to get
+     * a binary answer, and then to update the current state according to the
+     * result of the logical inferences performed by the agent with its formula.
+     **/
+    public void runNextStep() throws IOException, ContradictionException, TimeoutException {
 
-          // Ask to move, and check whether it was successful          
-          processMoveAnswer( moveToNext( ) );
+        // Add the conclusions obtained in the previous step
+        // but as clauses that use the "past" variables
+        addLastFutureClausesToPastClauses();
+
+        // Ask to move, and check whether it was successful
+        processMoveAnswer(moveToNext());
 
 
-          // Next, use Detector sensor to discover new information
-          processDetectorSensorAnswer( DetectsAt() );       
+        // Next, use Detector sensor to discover new information
+        processDetectorSensorAnswer(DetectsAt());
 
-          // Perform logical consequence questions for all the positions
-          // of the Treasure World
-          performInferenceQuestions();
-          System.out.println("END OF STEP " + idNextStep);
-          if( idNextStep == numMovements){
-              System.out.println("END OF MOVEMENTS");
-          }
-          tfstate.printState();      // Print the resulting knowledge matrix
+        // Perform logical consequence questions for all the positions
+        // of the Treasure World
+        performInferenceQuestions();
+        System.out.println("END OF STEP " + idNextStep);
+        if (idNextStep == numMovements) {
+            System.out.println("END OF MOVEMENTS");
+        }
+        tfstate.printState();      // Print the resulting knowledge matrix
     }
 
 
     /**
-    *   Ask the agent to move to the next position, by sending an appropriate
-    *   message to the environment object. The answer returned by the environment
-    *   will be returned to the caller of the function.
-    *
-    *   @return the answer message from the environment, that will tell whether the
-    *           movement was successful or not.
-    **/
-    public AMessage moveToNext()
-    {
+     * Ask the agent to move to the next position, by sending an appropriate
+     * message to the environment object. The answer returned by the environment
+     * will be returned to the caller of the function.
+     *
+     * @return the answer message from the environment, that will tell whether the
+     * movement was successful or not.
+     **/
+    public AMessage moveToNext() {
         Position nextPosition;
 
         if (idNextStep < numMovements) {
@@ -216,198 +209,165 @@ public class TreasureFinder {
             return moveTo(nextPosition.x, nextPosition.y);
         } else {
             System.out.println("NO MORE steps to perform at agent!");
-            return new AMessage("NOMESSAGE","","", "");
+            return new AMessage("NOMESSAGE", "", "", "");
         }
     }
 
     /**
-    * Use agent "actuators" to move to (x,y)
-    * We simulate this why telling to the World Agent (environment)
-    * that we want to move, but we need the answer from it
-    * to be sure that the movement was made with success
-    *
-    *  @param x  horizontal coordinate of the movement to perform
-    *  @param y  vertical coordinate of the movement to perform
-    *
-    *  @return returns the answer obtained from the environment object to the
-    *           moveto message sent
-    **/
+     * Use agent "actuators" to move to (x,y)
+     * We simulate this why telling to the World Agent (environment)
+     * that we want to move, but we need the answer from it
+     * to be sure that the movement was made with success
+     *
+     * @param x horizontal coordinate of the movement to perform
+     * @param y vertical coordinate of the movement to perform
+     * @return returns the answer obtained from the environment object to the
+     * moveto message sent
+     **/
 
-    public AMessage moveTo( int x, int y )
-    {
+    public AMessage moveTo(int x, int y) {
         // Tell the EnvironmentAgentID that we want  to move
         AMessage msg, ans;
 
-        msg = new AMessage("moveto", Integer.toString(x), Integer.toString(y), "" );
-        ans = EnvAgent.acceptMessage( msg );
+        msg = new AMessage("moveto", Integer.toString(x), Integer.toString(y), "");
+        ans = EnvAgent.acceptMessage(msg);
         System.out.println("FINDER => moving to : (" + x + "," + y + ")");
 
         return ans;
     }
 
-   /**
+    /**
      * Process the answer obtained from the environment when we asked
      * to perform a movement
      *
      * @param moveans the answer given by the environment to the last move message
-   **/
-    public void processMoveAnswer ( AMessage moveans )
-    {
-        if ( moveans.getComp(0).equals("movedto") ) {
-          agentX = Integer.parseInt( moveans.getComp(1) );
-          agentY = Integer.parseInt( moveans.getComp(2) );
-          
-          System.out.println("FINDER => moved to : (" + agentX + "," + agentY + ")"   );
+     **/
+    public void processMoveAnswer(AMessage moveans) {
+        if (moveans.getComp(0).equals("movedto")) {
+            agentX = Integer.parseInt(moveans.getComp(1));
+            agentY = Integer.parseInt(moveans.getComp(2));
+
+            System.out.println("FINDER => moved to : (" + agentX + "," + agentY + ")");
         }
     }
 
     /**
-     *   Send to the environment object the question:
-     *   "Does the detector sense something around(agentX,agentY) ?"
+     * Send to the environment object the question:
+     * "Does the detector sense something around(agentX,agentY) ?"
      *
-     *   @return return the answer given by the environment
-    **/
+     * @return return the answer given by the environment
+     **/
 
-    public AMessage DetectsAt( )
-    {
+    public AMessage DetectsAt() {
         AMessage msg, ans;
 
-        msg = new AMessage( "detected", Integer.toString(agentX),
-                Integer.toString(agentY), "" );
-        ans = EnvAgent.acceptMessage( msg );
+        msg = new AMessage("detected", Integer.toString(agentX),
+                Integer.toString(agentY), "");
+        ans = EnvAgent.acceptMessage(msg);
         System.out.println("FINDER => detecting at : (" + agentX + "," + agentY + ")");
         return ans;
     }
 
 
     /**
-    *   Process the answer obtained for the query "Detects at (x,y)?"
-    *   by adding the appropriate evidence clause to the formula
-    *
-    *   @param ans message obtained to the query "Detects at (x,y)?".
-    *          It will a message with four fields: detected  x y  [1,2,3]
-    **/
+     * Process the answer obtained for the query "Detects at (x,y)?"
+     * by adding the appropriate evidence clause to the formula
+     *
+     * @param ans message obtained to the query "Detects at (x,y)?".
+     *            It will a message with four fields: detected  x y  [1,2,3]
+     **/
     public void processDetectorSensorAnswer(AMessage ans) throws IOException, ContradictionException, TimeoutException {
         if (ans.getComp(0).equals("detected")) {
             int x = Integer.parseInt(ans.getComp(1));
             int y = Integer.parseInt(ans.getComp(2));
             int sensorValue = Integer.parseInt(ans.getComp(3));
+            VecInt clause ;
 
-            VecInt evidence = new VecInt();
             if (sensorValue == 1) {
                 System.out.println("WAR => adding evidence for detector 1 at : (" + x + "," + y + ")");
-                var clause_sensor1= discardSensor1(x, y);
-                solver.addClause(clause_sensor1);
-
-
+                clause=sensor1_clauses(x, y);
             } else if (sensorValue == 2) {
+                //el sensor2, por lo tanto, no puede estar en las posiciones de alrededor
                 System.out.println("WAR => adding evidence for detector 2 at : (" + x + "," + y + ")");
-                var clause_sensor2= discardSensor2(x, y);
-                solver.addClause(clause_sensor2);
+                clause=sensor2_clauses(x, y);
             } else if (sensorValue == 3) {
                 System.out.println("WAR => adding evidence for detector 3 at : (" + x + "," + y + ")");
-                var clause_sensor3= discardSensor3(x, y);
-                solver.addClause(clause_sensor3);
-            } else {
-                var discardSensorN=discardSensorNumber(x,y);
-                solver.addClause(discardSensorN);
+                clause=sensor3_clauses(x, y);
+            }else{
+                clause=sensorn_clauses(x,y);
             }
-
-            }
+            solver.addClause(clause);
         }
-
-
-    /**
-     *  Add the evidence to the formula that
-     *
-     *
-     **/
-    private VecInt discardSensor1(int x, int y) {
-        int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}};
-        for(int i = 1; i <= WorldDim; i++) {
-            for(int j = 1; j <= WorldDim; j++) {
-                if(!checkPosition(i, j, sensor)) {
-                    for(int k = 0; k < sensor.length; k++) {
-                        VecInt clause = new VecInt();
-                        int futureLiteral = coordToLineal(sensor[i][0], sensor[i][1], TreasurePastOffset);
-                        clause.insertFirst(futureLiteral);
-                        return clause;
-                    }
-
-                }
-            }
-        }
-        return null;
     }
 
 
-    private VecInt discardSensor2(int x, int y) {
+
+    private VecInt sensor1_clauses(int x, int y) throws ContradictionException {
+
+
+        VecInt clause = new VecInt();
+        int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}};
+
+        for (int i = 1; i <= WorldDim; i++) {
+            for (int j = 1; j <= WorldDim; j++) {
+                if (!Arrays.asList(sensor).contains(new int[]{i, j})) {
+                    clause.insertFirst(-coordToLineal(i, j, TreasureFutureOffset));
+                }
+            }
+        }
+
+        return clause;
+    }
+
+    private VecInt sensor2_clauses(int x, int y) throws ContradictionException {
+        VecInt clause = new VecInt();
         int[][] sensor = {{x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}};
 
-        for(int i = 1; i <= WorldDim; i++) {
-            for(int j = 1; j <= WorldDim; j++) {
-                if(!checkPosition(i, j, sensor)) {
-                    for(int k = 0; k < sensor.length; k++) {
-                        VecInt clause = new VecInt();
-                        int futureLiteral = coordToLineal(sensor[i][0], sensor[i][1], TreasurePastOffset);
-                        clause.insertFirst(futureLiteral);
-                        return clause;
-                    }
 
+        // Negate all cells that are not in the sensor
+        for (int i = 1; i <= WorldDim; i++) {
+            for (int j = 1; j <= WorldDim; j++) {
+                if (!Arrays.asList(sensor).contains(new int[]{i, j})) {
+                    clause.insertFirst(-coordToLineal(i, j, TreasureFutureOffset));
                 }
             }
         }
-        return null;
+
+        return clause;
     }
-    private VecInt discardSensor3(int x, int y) {
+
+    private VecInt sensor3_clauses(int x, int y) throws ContradictionException {
+        VecInt clause = new VecInt();
         int[][] sensor = {{x + 1, y + 1}, {x + 1, y}, {x + 1, y + 1}, {x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y - 1}, {x - 1, y}, {x - 1, y + 1}};
 
-        for(int i = 1; i <= WorldDim; i++) {
-            for(int j = 1; j <= WorldDim; j++) {
-                if(!checkPosition(i, j, sensor)) {
-                    for(int k = 0; k < sensor.length; k++) {
-                        VecInt clause = new VecInt();
-                        int futureLiteral = coordToLineal(sensor[i][0], sensor[i][1], TreasurePastOffset);
-                        clause.insertFirst(futureLiteral);
-                        return clause;
-                    }
-
+        // Negate all cells that are not in the sensor
+        for (int i = 1; i <= WorldDim; i++) {
+            for (int j = 1; j <= WorldDim; j++) {
+                if (!Arrays.asList(sensor).contains(new int[]{i, j})) {
+                    clause.insertFirst(-coordToLineal(i, j, TreasureFutureOffset));
                 }
             }
         }
-        return null;
+        return clause;
+
     }
+    private VecInt sensorn_clauses(int x, int y) throws ContradictionException {
+        //contiene la de los 3
+        VecInt clause = new VecInt();
 
-    private VecInt discardSensorNumber(int x, int y) {
-        int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}, {x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}, {x + 1, y + 1}, {x + 1, y}, {x + 1, y + 1}, {x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y - 1}, {x - 1, y}, {x - 1, y + 1}};
-
-        for(int i = 1; i <= WorldDim; i++) {
-            for(int j = 1; j <= WorldDim; j++) {
-                if(!checkPosition(i, j, sensor)) {
-                    for(int k = 0; k < sensor.length; k++) {
-                        VecInt clause = new VecInt();
-                        int futureLiteral = coordToLineal(sensor[i][0], sensor[i][1], TreasurePastOffset);
-                        clause.insertFirst(futureLiteral);
-                        return clause;
-                    }
-
-                }
+        int[][] sensor = {{x + 1, y + 1}, {x + 1, y}, {x + 1, y + 1}, {x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y - 1}, {x - 1, y}, {x - 1, y + 1}, {x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}, {x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}};
+        for (int i = 0; i < sensor.length; i++) {
+            if (EnvAgent.withinLimits(sensor[i][0], sensor[i][1])) {
+                int futureLiteral = coordToLineal(sensor[i][0], sensor[i][1], TreasureFutureOffset);
+                clause.insertFirst(futureLiteral);
             }
         }
-        return null;
+        return clause;
     }
 
 
 
 
-    private boolean checkPosition(int i, int j, int[][] sensor) {
-        for(int k = 0; k < sensor.length; k++) {
-            if(i == sensor[k][0] && j == sensor[k][1]) {
-                return true;
-            }
-        }
-        return false;
-    }
 
 
     /**
@@ -483,7 +443,18 @@ public class TreasureFinder {
         // This variable is used to generate, in a particular sequential order,
         // the variable indentifiers of all the variables
         actualLiteral = 1;
-        problem_clauses();
+        pastEnvelope();
+        futureEnvelope();
+        pastToFuture();
+        noReadingSensorOne();
+        noReadingSensorTwo();
+        noReadingSensorThree();
+        noReadingSensors();
+
+
+
+
+
 
         // call here functions to add the different sets of clauses
         // of Gamma to the solver object
@@ -492,20 +463,110 @@ public class TreasureFinder {
     }
 
 
-
-    private void problem_clauses() throws ContradictionException {
+    private void pastEnvelope() throws ContradictionException {
         TreasurePastOffset = actualLiteral;
+        VecInt clause = new VecInt();
+        for (int i = 0; i < WorldLinealDim; i++) {
+            clause.insertFirst(actualLiteral);
+            actualLiteral++;
+        }
+        solver.addClause(clause);
+    }
+
+    private void futureEnvelope() throws ContradictionException {
         TreasureFutureOffset = actualLiteral;
         VecInt clause = new VecInt();
-        for (int x = 1; x <= WorldDim; x += 1) {
-            for (int y = 1; y <= WorldDim; y += 1) {
-                clause.insertFirst(coordToLineal(x, y, TreasurePastOffset));
+        for (int i = 0; i < WorldLinealDim; i++) {
+            clause.insertFirst(actualLiteral);
+            actualLiteral++;
+        }
+        solver.addClause(clause);
+    }
 
-                clause.insertFirst(coordToLineal(x, y, TreasureFutureOffset));
-            }
+
+    private void pastToFuture() throws ContradictionException {
+        VecInt clause;
+        for (int i = 0; i < WorldLinealDim; i++) {
+            clause = new VecInt();
+            clause.insertFirst(-(i + TreasurePastOffset));
+            clause.insertFirst((i + TreasureFutureOffset));
             solver.addClause(clause);
+
         }
     }
+
+    private void noReadingSensorOne() throws ContradictionException {
+        DetectorOffset1 = actualLiteral;
+        for (int x = 1; x <= WorldDim; x++) {
+            for (int y = 1; y <= WorldDim; y++) {
+                int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}};
+                int varValue = coordToLineal(x, y, DetectorOffset1);
+                for (int i = 0; i < sensor.length; i++) {
+                        VecInt clause = new VecInt();
+                        clause.insertFirst(varValue);
+                        solver.addClause(clause);
+
+                    }
+                    actualLiteral++;
+                }
+            }
+        }
+
+
+
+    private void noReadingSensorTwo() throws ContradictionException {
+        DetectorOffset2 = actualLiteral;
+        for (int x = 1; x <= WorldDim; x++) {
+            for (int y = 1; y <= WorldDim; y++) {
+                int[][] sensor = {{x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}};
+                int varValue = coordToLineal(x, y, DetectorOffset2);
+                for (int i = 0; i < sensor.length; i++) {
+                        VecInt clause = new VecInt();
+                        clause.insertFirst(varValue);
+                        solver.addClause(clause);
+
+                    }
+                    actualLiteral++;
+                }
+            }
+        }
+
+
+    private void noReadingSensorThree() throws ContradictionException {
+        DetectorOffset3 = actualLiteral;
+        for (int x = 1; x <= WorldDim; x++) {
+            for (int y = 1; y <= WorldDim; y++) {
+                int[][] sensor = {{x + 1, y + 1}, {x + 1, y}, {x + 1, y + 1}, {x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y - 1}, {x - 1, y}, {x - 1, y + 1}};
+                int varValue = coordToLineal(x, y, DetectorOffset3);
+                for (int i = 0; i < sensor.length; i++) {
+                        VecInt clause = new VecInt();
+                        clause.insertFirst(varValue);
+                        solver.addClause(clause);
+
+                    }
+                    actualLiteral++;
+                }
+            }
+        }
+
+
+    private void noReadingSensors() throws ContradictionException {
+        DetectorOffsetN = actualLiteral;
+        for (int x = 1; x <= WorldDim; x++) {
+            for (int y = 1; y <= WorldDim; y++) {
+                VecInt clause = new VecInt();
+                int varValue = coordToLineal(x, y, DetectorOffset3);
+                clause.insertFirst(varValue);
+                solver.addClause(clause);
+            }
+        }
+    }
+
+
+
+
+
+
 
 
 
