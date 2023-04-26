@@ -309,13 +309,9 @@ public class TreasureFinder {
                 discardSensor3(x, y);
                 evidence.insertFirst(-coordToLineal(x, y, DetectorOffset3));
                 solver.addClause(evidence);
-            } else {
-                discardNoSensorNumber(x, y);
-            }
-
-
             }
         }
+    }
 
     private void discardSensor1(int x, int y) {
         int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}};
@@ -341,17 +337,6 @@ public class TreasureFinder {
 
     private void discardSensor3(int x, int y) {
         int[][] sensor = {{x + 1, y + 1}, {x + 1, y}, {x + 1, y + 1}, {x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y - 1}, {x - 1, y}, {x - 1, y + 1}};
-        for(int i = 1; i <= WorldDim; i++) {
-            for(int j = 1; j <= WorldDim; j++) {
-                if(!checkPosition(i, j, sensor)) {
-                    tfstate.set(i, j, "X");
-                }
-            }
-        }
-    }
-
-    private void discardNoSensorNumber(int x, int y) {
-        int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}, {x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}, {x + 1, y + 1}, {x + 1, y}, {x + 1, y + 1}, {x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y - 1}, {x - 1, y}, {x - 1, y + 1}};
         for(int i = 1; i <= WorldDim; i++) {
             for(int j = 1; j <= WorldDim; j++) {
                 if(checkPosition(i, j, sensor)) {
