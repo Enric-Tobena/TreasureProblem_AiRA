@@ -145,9 +145,6 @@ public class TreasureFinderTest {
             testMakeSimpleStep(TAgent, seqOfStates.get(i));
 
         }
-
-
-
     }
 
     /**

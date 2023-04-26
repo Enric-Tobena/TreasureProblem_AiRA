@@ -294,18 +294,21 @@ public class TreasureFinder {
             int sensorValue = Integer.parseInt(ans.getComp(3));
 
             VecInt evidence = new VecInt();
-                if (sensorValue == 1) {
-                    System.out.println("WAR => adding evidence for detector 1 at : (" + x + "," + y + ")");
-                    evidence.insertFirst(-coordToLineal(x, y, DetectorOffset1));
-                } else if (sensorValue == 2) {
-                    System.out.println("WAR => adding evidence for detector 2 at : (" + x + "," + y + ")");
-                    evidence.insertFirst(-coordToLineal(x, y, DetectorOffset2));
-                } else if (sensorValue == 3) {
-                    System.out.println("WAR => adding evidence for detector 3 at : (" + x + "," + y + ")");
-                    evidence.insertFirst(-coordToLineal(x, y, DetectorOffset3));
-                }
-
+            if (sensorValue == 1) {
+                System.out.println("WAR => adding evidence for detector 1 at : (" + x + "," + y + ")");
+                evidence.insertFirst(-coordToLineal(x, y, DetectorOffset1));
                 solver.addClause(evidence);
+            } else if (sensorValue == 2) {
+                System.out.println("WAR => adding evidence for detector 2 at : (" + x + "," + y + ")");
+                evidence.insertFirst(-coordToLineal(x, y, DetectorOffset2));
+                solver.addClause(evidence);
+            } else if (sensorValue == 3) {
+                System.out.println("WAR => adding evidence for detector 3 at : (" + x + "," + y + ")");
+                evidence.insertFirst(-coordToLineal(x, y, DetectorOffset3));
+                solver.addClause(evidence);
+            }
+
+
             }
         }
 
@@ -442,7 +445,7 @@ public class TreasureFinder {
         DetectorOffset3 = actualLiteral;
         for (int x = 1; x <= WorldDim; x += 1) {
             for (int y = 1; y <= WorldDim; y += 1) {
-                int[][] sensor = {{x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}};
+                int[][] sensor = {{x + 1, y + 1}, {x + 1, y}, {x + 1, y + 1}, {x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y - 1}, {x - 1, y}, {x - 1, y + 1}};
                 int varValue = coordToLineal(x, y, DetectorOffset3);
                 for (int i = 0; i < sensor.length; i++) {
                     if (sensor[i][0] >= 1 && sensor[i][0] <= WorldDim && sensor[i][1] >= 1 && sensor[i][1] <= WorldDim) {

@@ -51,12 +51,12 @@ public class TreasureWorldEnv {
                 ans = new AMessage("notmovedto", msg.getComp(1), msg.getComp(2), "");
             }
 
-        } else if (msg.getComp(0).equals("detectsat")) {
+        } else if (msg.getComp(0).equals("detected")) {
             int nx = Integer.parseInt(msg.getComp(1));
             int ny = Integer.parseInt(msg.getComp(2));
 
             if (withinLimits(nx, ny)) {
-                ans = new AMessage("detectsat", msg.getComp(1), msg.getComp(2), "");
+                ans = new AMessage("detected", msg.getComp(1), msg.getComp(2), sensorValueAssignment(Integer.parseInt(msg.getComp(1)), Integer.parseInt(msg.getComp(2))));
             } else {
                 ans = new AMessage("notdetectsat", msg.getComp(1), msg.getComp(2), "");
             }
@@ -65,6 +65,46 @@ public class TreasureWorldEnv {
         return ans;
     }
 
+    String sensorValueAssignment(int x, int y) {
+        if(sensorValue1(x, y)) {
+            return "1";
+        } else if (sensorValue2(x, y)) {
+            return "2";
+        } else if (sensorValue3(x, y)) {
+            return "3";
+        }
+        return "4";
+    }
+
+    boolean sensorValue1(int x, int y) {
+        int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}};
+        for(int i = 0; i < sensor.length; i++) {
+            if(TreasureX == sensor[i][0] && TreasureY == sensor[i][1]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    boolean sensorValue2(int x, int y) {
+        int[][] sensor = {{x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}};
+        for(int i = 0; i < sensor.length; i++) {
+            if(TreasureX == sensor[i][0] && TreasureY == sensor[i][1]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    boolean sensorValue3(int x, int y) {
+        int[][] sensor = {{x + 1, y + 1}, {x + 1, y}, {x + 1, y + 1}, {x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y - 1}, {x - 1, y}, {x - 1, y + 1}};
+        for(int i = 0; i < sensor.length; i++) {
+            if(TreasureX == sensor[i][0] && TreasureY == sensor[i][1]) {
+                return true;
+            }
+        }
+        return false;
+    }
 
         /**
          * Check if position x,y is within the limits of the
