@@ -387,29 +387,116 @@ public class TreasureFinder  {
         // the variable indentifiers of all the variables
         actualLiteral = 1;
 
-
         // call here functions to add the different sets of clauses
         // of Gamma to the solver object
-
-        // Add clauses for the past variables
-        addPastClauses();
+        pastEnvelope();
+        futureEnvelope();
+        pastToFuture();
+        noReadingSensorOne();
+        noReadingSensorTwo();
+        noReadingSensorThree();
 
         return solver;
     }
+    private void pastEnvelope() throws ContradictionException {
+        TreasurePastOffset = actualLiteral;
+        VecInt clause = new VecInt();
+        for (int i = 0; i < WorldLinealDim; i++) {
+            clause.insertFirst(actualLiteral);
+            actualLiteral++;
+        }
+        solver.addClause(clause);
+    }
+    /**
+     * Adds to solver the atLeastOneEnvelope clause (future)
+     * @throws ContradictionException ContradictionException error
+     */
+    private void futureEnvelope() throws ContradictionException {
+        TreasureFutureOffset = actualLiteral;
+        VecInt clause = new VecInt();
+        for (int i = 0; i < WorldLinealDim; i++) {
+            clause.insertFirst(actualLiteral);
+            actualLiteral++;
+        }
+        solver.addClause(clause);
+    }
 
-    private void addPastClauses() throws ContradictionException {
-        // Add clauses for the past variables
-        for (int x = 1; x <= WorldDim; x += 1) {
-            for (int y = 1; y <= WorldDim; y += 1) {
-                // Add clauses for the past variables
-                solver.addClause(new VecInt(new int[]{-coordToLineal(x, y, TreasurePastOffset)}));
-                solver.addClause(new VecInt(new int[]{-coordToLineal(x, y, DetectorOffset1)}));
-                solver.addClause(new VecInt(new int[]{-coordToLineal(x, y, DetectorOffset2)}));
-                solver.addClause(new VecInt(new int[]{-coordToLineal(x, y, DetectorOffset3)}));
-
-            }
+    /**
+     * Adds the clauses at solver to keep consistency
+     * @throws ContradictionException ContradictionException error
+     */
+    private void pastToFuture() throws ContradictionException {
+        VecInt clause;
+        for (int i = 0; i < WorldLinealDim; i++) {
+            clause = new VecInt();
+            clause.insertFirst(i + TreasurePastOffset);
+            clause.insertFirst(-(i + TreasureFutureOffset));
+            solver.addClause(clause);
         }
     }
+    private void noReadingSensorOne() throws ContradictionException {
+        DetectorOffset1 = actualLiteral;
+        for (int x = 1; x <= WorldDim; x++) {
+            for (int y = 1; y <= WorldDim; y++) {
+
+                int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}};
+                int varValue = coordToLineal(x, y, DetectorOffset1);
+                for (int i = 0; i < sensor.length; i++) {
+    if (notInSensor(sensor[i][0], sensor[i][1], sensor)) {
+                            VecInt clause = new VecInt();
+                            clause.insertFirst(-varValue);
+                            clause.insertFirst(-coordToLineal(sensor[i][0], sensor[i][1], TreasureFutureOffset));
+                            solver.addClause(clause);
+                    }
+                }
+                actualLiteral++;
+            }
+
+        }
+    }
+    private void noReadingSensorTwo() throws ContradictionException {
+        DetectorOffset2 = actualLiteral;
+        for (int x = 1; x <= WorldDim; x++) {
+            for (int y = 1; y <= WorldDim; y++) {
+
+                int[][] sensor = {{x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}};
+                int varValue = coordToLineal(x, y, DetectorOffset2);
+                for (int i = 0; i < sensor.length; i++) {
+                    if (notInSensor(sensor[i][0], sensor[i][1], sensor)) {
+                        VecInt clause = new VecInt();
+                        clause.insertFirst(-varValue);
+                        clause.insertFirst(-coordToLineal(sensor[i][0], sensor[i][1], TreasureFutureOffset));
+                        solver.addClause(clause);
+                    }
+                }
+                actualLiteral++;
+            }
+
+        }
+    }
+    private void noReadingSensorThree() throws ContradictionException {
+        //(x+1,y−1),(x+1,y),(x+1,y+1),(x,y−1),(x,y),(x,y+1),(x−1,y−1),(x−1,y),(x− 1,y+1)
+        DetectorOffset3 = actualLiteral;
+        for (int x=1; x<=WorldDim; x++){
+            for (int y=1; y<=WorldDim; y++){
+                int[][] sensor = {{x+1,y-1},{x+1,y},{x+1,y+1},{x,y-1},{x,y},{x,y+1},{x-1,y-1},{x-1,y},{x-1,y+1}};
+                int varValue = coordToLineal(x,y,DetectorOffset3);
+                for (int i=0; i<sensor.length; i++){
+                    if (notInSensor(sensor[i][0],sensor[i][1],sensor)){
+                        VecInt clause = new VecInt();
+                        clause.insertFirst(-varValue);
+                        clause.insertFirst(-coordToLineal(sensor[i][0],sensor[i][1],TreasureFutureOffset));
+                        solver.addClause(clause);
+                    }
+                }
+                actualLiteral++;
+            }
+
+        }
+    }
+
+
+
 
 
     private boolean notInSensor(int x, int y, int[][] sensor) {
