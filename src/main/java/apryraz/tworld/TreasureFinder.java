@@ -193,6 +193,10 @@ public class TreasureFinder  {
           // Perform logical consequence questions for all the positions
           // of the Treasure World
           performInferenceQuestions();
+          System.out.println("END OF STEP " + idNextStep);
+          if( idNextStep == numMovements){
+              System.out.println("END OF MOVEMENTS");
+          }
           tfstate.printState();      // Print the resulting knowledge matrix
     }
 
@@ -293,16 +297,20 @@ public class TreasureFinder  {
             int sensorValue = Integer.parseInt(ans.getComp(3));
 
 
-            for(int i = 0; i < 3; i++)
+            for(int i = 0; i < sensorValue; i++)
             if (sensorValue == '0') {
                 VecInt evidence = new VecInt();
                 if (i == 0) {
+                    System.out.println("WAR => adding evidence for detector 1 at : (" + x + "," + y + ")");
                     evidence.insertFirst(-coordToLineal(x, y, DetectorOffset1));
                 } else if (i == 1) {
+                    System.out.println("WAR => adding evidence for detector 2 at : (" + x + "," + y + ")");
                     evidence.insertFirst(-coordToLineal(x, y, DetectorOffset2));
                 } else if (i == 2) {
+                    System.out.println("WAR => adding evidence for detector 3 at : (" + x + "," + y + ")");
                     evidence.insertFirst(-coordToLineal(x, y, DetectorOffset3));
                 }
+
                 solver.addClause(evidence);
             }
         }
@@ -348,7 +356,6 @@ public class TreasureFinder  {
                 int linealIndexPast = coordToLineal(x, y, TreasurePastOffset);
 
                 VecInt variablePositive = new VecInt();
-                System.out.println(linealIndex);
                 variablePositive.insertFirst(linealIndex);
 
 
@@ -375,7 +382,7 @@ public class TreasureFinder  {
     public ISolver buildGamma() throws UnsupportedEncodingException,
             FileNotFoundException, IOException, ContradictionException
     {
-        int totalNumVariables = WorldLinealDim * 7;
+        int totalNumVariables = 100000;
 
         // You must set this variable to the total number of boolean variables
         // in your formula Gamma
@@ -389,8 +396,8 @@ public class TreasureFinder  {
 
         // call here functions to add the different sets of clauses
         // of Gamma to the solver object
-        pastEnvelope();
-        futureEnvelope();
+        past();
+        future();
         pastToFuture();
         noReadingSensorOne();
         noReadingSensorTwo();
@@ -398,7 +405,7 @@ public class TreasureFinder  {
 
         return solver;
     }
-    private void pastEnvelope() throws ContradictionException {
+    private void past() throws ContradictionException {
         TreasurePastOffset = actualLiteral;
         VecInt clause = new VecInt();
         for (int i = 0; i < WorldLinealDim; i++) {
@@ -411,7 +418,7 @@ public class TreasureFinder  {
      * Adds to solver the atLeastOneEnvelope clause (future)
      * @throws ContradictionException ContradictionException error
      */
-    private void futureEnvelope() throws ContradictionException {
+    private void future() throws ContradictionException {
         TreasureFutureOffset = actualLiteral;
         VecInt clause = new VecInt();
         for (int i = 0; i < WorldLinealDim; i++) {
