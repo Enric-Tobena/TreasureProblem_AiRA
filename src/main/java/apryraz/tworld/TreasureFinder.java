@@ -295,9 +295,6 @@ public class TreasureFinder {
             } else if (sensorValue == 3) {
                 evidence.insertFirst(-coordToLineal(x, y, DetectorOffset3));
                 System.out.println("WAR => adding evidence for detector 3 at : (" + x + "," + y + ")");
-
-            }else{
-
             }
             solver.addClause(evidence);
         }
