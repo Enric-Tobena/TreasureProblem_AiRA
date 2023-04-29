@@ -29,7 +29,7 @@ public class TreasureWorld {
 **/
 public static void runStepsSequence(int wDim, int tX, int tY, int numSteps, String fileSteps) throws IOException, ContradictionException, TimeoutException {
   // Make instances of TreasureFinder agent and environment object classes
-   TreasureFinder TAgent = new TreasureFinder(wDim);
+   TreasureFinder TAgent = new TreasureFinder(wDim, tX, tY);
    TreasureWorldEnv EnvAgent = new TreasureWorldEnv(wDim, tX, tY);
 
    // Set environment object
