@@ -340,8 +340,6 @@ public class TreasureFinder {
      * conclusions that were already added in previous steps, although this will not produce
      * any bad functioning in the reasoning process with the formula.
      *
-     *  @throws ContradictionException
-     *  @throws TimeoutException
      **/
 
     public void performInferenceQuestions() throws IOException, ContradictionException, TimeoutException {
@@ -378,12 +376,6 @@ public class TreasureFinder {
      * Vars = { sensor1 in x,y (t) ,sensor2 in x,y (t) ,sensor3 in x,y (t) ,tr in x,y (t−1),tr in x,y (t+1) | (x,y) ∈ [1,n] × [1,n]}
      *
      *
-     * @throws ContradictionException
-     * @throws IOException
-     * @throws TimeoutException
-     * @throws UnsupportedEncodingException
-     *
-     *
      **/
     public ISolver buildGamma() throws UnsupportedEncodingException,
             FileNotFoundException, IOException, ContradictionException {
@@ -412,8 +404,7 @@ public class TreasureFinder {
      * This function adds the clause of:
      *          ∀x,y ∈ [1, n] × [1, n] (¬tr in x,y (t−1) → ¬tr in x,y (t+1))
      * With this clause we add the restriction that past must be consistent with the future.
-     *
-     *  @throws ContradictionException
+
      *
      **/
     private void noTreasureAtNextIfNoTreasureAtPrev() throws ContradictionException {
@@ -441,7 +432,6 @@ public class TreasureFinder {
      *      (tr in 1,1 (t+1) ∨ tr in 1,2 (t+1) ∨ ... ∨ tr in n,n (t+1))
      *
      * With this clause we add the restriction that there is at least one treasure in the world.
-     *  @throws ContradictionException
      *
      **/
     private void atLeastOneTreasure() throws ContradictionException {
@@ -467,9 +457,7 @@ public class TreasureFinder {
      *      ∀(x, y) ∈ [1, n] × [1, n], ∀(x′, y′)  not ∈ {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}}
      *      (sensor1 in x,y (t) → ¬tr in x',y' (t+1) )
      *
-     * There is no treasure in one of the five cells if the reading is 1.
-     *
-     * @throws ContradictionException
+     * There is no treasure outside one of the five cells if the reading is 1.
      *
      **/
 
@@ -485,9 +473,8 @@ public class TreasureFinder {
 
     }
     /**
-     * @param x x coordinate of the position to check
+     * @param x coordinate of the position to check
      * @param y coordinate of the position to check
-     * @throws ContradictionException
      */
     private void addS1Clauses(int x, int y) throws ContradictionException {
         int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}};
@@ -497,7 +484,7 @@ public class TreasureFinder {
                 if(notInSensor(i, j, sensor)) {
                     VecInt notOutsideS1 = new VecInt();
                     int treasurePos = coordToLineal(i, j, TreasureFutureOffset);
-                    // sensor1 in x,y (t) → ¬tr in x',y' (t+1) == ¬sensor1 in x,y (t) ∨ ¬tr in x',y' (t+1)
+                    // sensor1 in x,y (t) → ¬tr in x',y' (t+1) == ¬sensor1 in x,y (t) ∨ ¬tr in x',y' (t+1), where(x', y') are not in sensor1
                     notOutsideS1.insertFirst(-posS1_XY); // ¬sensor1 in x,y (t)
                     notOutsideS1.insertFirst(-treasurePos); // ¬tr in x',y' (t+1)
                     solver.addClause(notOutsideS1);
@@ -512,7 +499,7 @@ public class TreasureFinder {
      *      ∀(x, y) ∈ [1, n] × [1, n], ∀(x′, y′)  not ∈ {{x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}}
      *      (sensor2 in x,y (t) → ¬tr in x',y' (t+1) )
      *
-     * There is no treasure in one of the four cells if the reading is 2.
+     * There is no treasure outside one of the four cells if the reading is 2.
      *
      **/
 
@@ -530,7 +517,6 @@ public class TreasureFinder {
     /**
      * @param x coordinate of the position to check
      * @param y coordinate of the position to check
-     * @throws ContradictionException
      */
 
     private void addS2Clauses(int x, int y) throws ContradictionException {
@@ -541,7 +527,7 @@ public class TreasureFinder {
                 if(notInSensor(i, j, sensor)) {
                     VecInt notOutsideS2 = new VecInt();
                     int treasurePos = coordToLineal(i, j, TreasureFutureOffset);
-                    // sensor2 in x,y (t) → ¬tr in x',y' (t+1) == ¬sensor2 in x,y (t) ∨ ¬tr in x',y' (t+1)
+                    // sensor2 in x,y (t) → ¬tr in x',y' (t+1) == ¬sensor2 in x,y (t) ∨ ¬tr in x',y' (t+1), where(x', y') are not in sensor2
                     notOutsideS2.insertFirst(-posS2_XY); // ¬sensor2 in x,y (t)
                     notOutsideS2.insertFirst(-treasurePos); // ¬tr in x',y' (t+1)
                     solver.addClause(notOutsideS2);
@@ -556,7 +542,7 @@ public class TreasureFinder {
      * This functions adds the clauses of:
      *     ∀(x, y) ∈ [1, n] × [1, n], ∀(x′, y′) ∈ (x,y) U sensor1_positions(x,y) U sensor2_positions(x,y)
      *     (sensor3 in x,y (t) → ¬tr in x',y' (t+1))
-     *
+     * <p>
      *   There is not treasure in positions of sensor1 and positions of sensor2 if the reading is 3.
      *
      **/

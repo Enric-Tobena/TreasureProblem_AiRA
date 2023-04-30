@@ -3,18 +3,23 @@ package apryraz.tworld;
 public class TFState {
   /**
 
-
   **/
 
   int wDim;
   String [][] matrix;
 
+    /**
+     *
+     */
   public TFState( int dim ) {
     wDim = dim;
     matrix = new String[wDim][wDim];
     initializeState();
   }
 
+    /**
+     *
+     */
   public void initializeState()
   {
       for (int i = 0; i < wDim; i++) {

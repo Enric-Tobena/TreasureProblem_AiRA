@@ -1,0 +1,48 @@
+@options
+@packages
+-classpath
+'/home/enric/.m2/repository/org/sat4j/org.sat4j.core/2.3.1/org.sat4j.core-2.3.1.jar'
+-encoding
+'UTF-8'
+-protected
+--release
+11
+-sourcepath
+'/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/src/main/java'
+-author
+-bottom
+'Copyright &#169; 2023. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/site/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'tworld 1.0-SNAPSHOT API'
+-linkoffline
+'https://docs.oracle.com/en/java/javase/11/docs/api' '/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/javadoc-bundle-options'
+-use
+-version
+-windowtitle
+'tworld 1.0-SNAPSHOT API'
+apryraz.tworld
+/home/enric/.m2/repository/org/sat4j/org.sat4j.core/2.3.1/org.sat4j.core-2.3.1.jar = 1680457450821
+/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/src/main/java = 1680457437733
+/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/site/apidocs/element-list = 1682873868011
+/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/site/apidocs/package-search-index.js = 1682873868059
+/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/site/apidocs/script.js = 1682873868075
+/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/site/apidocs/overview-tree.html = 1682873868039
+/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/site/apidocs/help-doc.html = 1682873868071
+/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/site/apidocs/module-search-index.js = 1682873868059
+/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/site/apidocs/copy.svg = 1682873868075
+/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/site/apidocs/jquery-ui.overrides.css = 1682873868087
+/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/site/apidocs/tag-search-index.js = 1682873868059
+/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/site/apidocs/search.js = 1682873868075
+/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/site/apidocs/stylesheet.css = 1682873868075
+/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/site/apidocs/index-all.html = 1682873868071
+/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/site/apidocs/type-search-index.js = 1682873868059
+/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/site/apidocs/index.html = 1682873868071
+/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/site/apidocs/allclasses-index.html = 1682873868051
+/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/site/apidocs/allpackages-index.html = 1682873868059
+/home/enric/Escritorio/TreballsUniversitat/3r GEI (AiRA)/TreasureProblem_AiRA/target/site/apidocs/member-search-index.js = 1682873868059

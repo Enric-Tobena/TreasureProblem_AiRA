@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"apryraz.tworld","l":"AMessage"},{"p":"apryraz.tworld","l":"Position"},{"p":"apryraz.tworld","l":"TFState"},{"p":"apryraz.tworld","l":"TreasureFinder"},{"p":"apryraz.tworld","l":"TreasureWorld"},{"p":"apryraz.tworld","l":"TreasureWorldEnv"}];updateSearchResults();
