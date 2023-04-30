@@ -373,8 +373,10 @@ public class TreasureFinder {
     }
 
     /**
-     * This function ∀x, y ∈ [1, n] × [1, n] (¬trt−1 → ¬trt+1)
      *
+     * This function adds the clause of:
+     *          ∀x,y ∈ [1, n] × [1, n] (¬tr in x,y (t−1) → ¬tr in x,y (t+1))
+     * With this clause we add the restriction that past must be consistent with the future.
      *
      **/
     private void noTreasureAtNextIfNoTreasureAtPrev() throws ContradictionException {
@@ -393,6 +395,16 @@ public class TreasureFinder {
             }
         }
     }
+
+    /**
+     *
+     * This function adds the clause of::
+     *      (tr in 1,1 (t−1) ∨ tr in 1,2 (t−1) ∨ ... ∨ tr in n,n (t−1))
+     *      (tr in 1,1 (t+1) ∨ tr in 1,2 (t+1) ∨ ... ∨ tr in n,n (t+1))
+     *
+     * With this clause we add the restriction that there is at least one treasure in the world.
+     *
+     **/
     private void atLeastOneTreasure() throws ContradictionException {
         VecInt clausePast = new VecInt();
         VecInt clauseFuture = new VecInt();
@@ -407,6 +419,15 @@ public class TreasureFinder {
         solver.addClause(clausePast);
         solver.addClause(clauseFuture);
     }
+
+    /**
+     *
+     * This functions adds the clauses of::
+     *      ∀(x, y) ∈ [1, n] × [1, n], ∀(x′, y′)  not ∈ {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}} (sensor1 in x,y (t) → ¬tr in x',y' (t+1) )
+     *
+     * There is no treasure in one of the five cells if the reading is 1.
+     *
+     **/
 
     private void noTreasureOutsideS1() throws ContradictionException {
         DetectorOffset1 = actualLiteral;
@@ -436,16 +457,14 @@ public class TreasureFinder {
         }
     }
 
-    private boolean notInSensor(int i, int j, int[][] sensor) {
-        for(int k = 0; k < sensor.length; k++) {
-            if(withinLimits(sensor[k][0], sensor[k][1])) {
-                if (i == sensor[k][0] && j == sensor[k][1]) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+    /**
+     *
+     * This functions adds the clauses of::
+     *      ∀(x, y) ∈ [1, n] × [1, n], ∀(x′, y′)  not ∈ {{x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}} (sensor2 in x,y (t) → ¬tr in x',y' (t+1) )
+     *
+     * There is no treasure in one of the four cells if the reading is 2.
+     *
+     **/
 
     private void noTreasureOutsideS2() throws ContradictionException {
         DetectorOffset2 = actualLiteral;
@@ -474,6 +493,16 @@ public class TreasureFinder {
         }
     }
 
+
+    /**
+     *
+     * This functions adds the clauses of:
+     *     ∀(x, y) ∈ [1, n] × [1, n], ∀(x′, y′) ∈ (x,y) U sensor1_positions(x,y) U sensor2_positions(x,y) (sensor3 in x,y (t) → ¬tr in x',y' (t+1) )
+     *
+     * There is not treasure in positions of sensor1 and positions of sensor2 if the reading is 3.
+     *
+     **/
+
     private void noTreasureOutsideS3() throws ContradictionException {
         DetectorOffset3 = actualLiteral;
         for(int x = 1; x <= WorldDim; x++) {
@@ -492,6 +521,24 @@ public class TreasureFinder {
                 }
             }
         }
+    }
+
+    /**
+     * @AUXILIAR METHOD
+     * This functions checks if a position is within the limits of the world (n x n) and also if given position belongs to the sensor set of positions.
+     * @param i x coordinate of the position to check
+     * @param j y coordinate of the position to check
+     * @param sensor set of positions of the sensor
+     **/
+    private boolean notInSensor(int i, int j, int[][] sensor) {
+        for(int k = 0; k < sensor.length; k++) {
+            if(withinLimits(sensor[k][0], sensor[k][1])) {
+                if (i == sensor[k][0] && j == sensor[k][1]) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
