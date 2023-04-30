@@ -372,7 +372,11 @@ public class TreasureFinder {
         return solver;
     }
 
-
+    /**
+     * This function ∀x, y ∈ [1, n] × [1, n] (¬trt−1 → ¬trt+1)
+     *
+     *
+     **/
     private void noTreasureAtNextIfNoTreasureAtPrev() throws ContradictionException {
         TreasurePastOffset = actualLiteral;
         TreasureFutureOffset = TreasurePastOffset + WorldLinealDim;
