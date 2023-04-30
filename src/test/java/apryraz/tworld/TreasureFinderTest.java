@@ -145,9 +145,12 @@ public class TreasureFinderTest {
     }
 
     /**
-     * This is an example test. You must replicate this method for each different
-     * test sequence, or use some kind of parametric tests with junit
-     **/
+     * We have created all Tests following the example model given at the statement. We followed the "infotest.txt" information.
+     * @throws IOException IOException error
+     * @throws ContradictionException ContradictionException error
+     * @throws TimeoutException TimeoutException error
+     */
+
     @Test
     public void TWorldTest1() throws
             IOException, ContradictionException, TimeoutException {
