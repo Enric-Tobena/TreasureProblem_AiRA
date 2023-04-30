@@ -110,7 +110,6 @@ public class TreasureFinder {
         WorldDim = WDim;
         WorldLinealDim = WorldDim * WorldDim;
 
-
         try {
             solver = buildGamma();
         } catch (FileNotFoundException ex) {
@@ -426,6 +425,7 @@ public class TreasureFinder {
                 int trtMinus1 = coordToLineal(x, y, TreasurePastOffset);
                 int trtPlus1 = coordToLineal(x, y, TreasureFutureOffset);
                 VecInt clause = new VecInt();
+                // ¬tr in x,y (t−1) → ¬tr in x,y (t+1) == tr in x,y (t−1) ∨ ¬tr in x,y (t+1)
                 clause.insertFirst(trtMinus1);
                 clause.insertFirst(-trtPlus1);
                 solver.addClause(clause);
@@ -451,7 +451,9 @@ public class TreasureFinder {
             for (int j = 1; j <= WorldDim; j++) {
                 int literal1 = coordToLineal(i, j, TreasurePastOffset);
                 int literal2 = coordToLineal(i, j, TreasureFutureOffset);
+                // tr in 1,1 (t−1) ∨ tr in 1,2 (t−1) ∨ ... ∨ tr in n,n (t−1)
                 clausePast.insertFirst(literal1);
+                // tr in 1,1 (t+1) ∨ tr in 1,2 (t+1) ∨ ... ∨ tr in n,n (t+1)
                 clauseFuture.insertFirst(literal2);
             }
         }
@@ -495,6 +497,7 @@ public class TreasureFinder {
                 if(notInSensor(i, j, sensor)) {
                     VecInt notOutsideS1 = new VecInt();
                     int treasurePos = coordToLineal(i, j, TreasureFutureOffset);
+                    // sensor1 in x,y (t) → ¬tr in x',y' (t+1) == ¬sensor1 in x,y (t) ∨ ¬tr in x',y' (t+1)
                     notOutsideS1.insertFirst(-posS1_XY);
                     notOutsideS1.insertFirst(-treasurePos);
                     solver.addClause(notOutsideS1);
@@ -538,6 +541,7 @@ public class TreasureFinder {
                 if(notInSensor(i, j, sensor)) {
                     VecInt notOutsideS2 = new VecInt();
                     int treasurePos = coordToLineal(i, j, TreasureFutureOffset);
+                    // sensor2 in x,y (t) → ¬tr in x',y' (t+1) == ¬sensor2 in x,y (t) ∨ ¬tr in x',y' (t+1)
                     notOutsideS2.insertFirst(-posS2_XY);
                     notOutsideS2.insertFirst(-treasurePos);
                     solver.addClause(notOutsideS2);
@@ -561,15 +565,15 @@ public class TreasureFinder {
         DetectorOffset3 = actualLiteral;
         for(int x = 1; x <= WorldDim; x++) {
             for(int y = 1; y <= WorldDim; y++) {
-                int actualPos = coordToLineal(x, y, DetectorOffset3);
+                int posS3_XY = coordToLineal(x, y, DetectorOffset3);
                 int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}, {x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}};
                 for(int k = 0; k < sensor.length; k++) {
                     if(withinLimits(sensor[k][0], sensor[k][1])) {
                         VecInt notInS3 = new VecInt();
-                        int sensorPos = coordToLineal(sensor[k][0], sensor[k][1], TreasureFutureOffset);
-
-                        notInS3.insertFirst(-actualPos);
-                        notInS3.insertFirst(-sensorPos);
+                        int treasurePos = coordToLineal(sensor[k][0], sensor[k][1], TreasureFutureOffset);
+            //      sensor3 in x,y (t) → ¬tr in x',y' (t+1) == ¬sensor3 in x,y (t) ∨ ¬tr in x',y' (t+1)
+                        notInS3.insertFirst(-posS3_XY);
+                        notInS3.insertFirst(-treasurePos);
                         solver.addClause(notInS3);
                     }
                 }
