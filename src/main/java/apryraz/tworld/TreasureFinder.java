@@ -321,6 +321,7 @@ public class TreasureFinder {
      * conclusions that were already added in previous steps, although this will not produce
      * any bad functioning in the reasoning process with the formula.
      **/
+
     public void performInferenceQuestions() throws IOException, ContradictionException, TimeoutException {
         for (int x = 1; x <= WorldDim; x += 1) {
             for (int y = 1; y <= WorldDim; y += 1) {
