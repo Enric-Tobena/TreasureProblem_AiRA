@@ -426,8 +426,8 @@ public class TreasureFinder {
                 int trtPlus1 = coordToLineal(x, y, TreasureFutureOffset);
                 VecInt clause = new VecInt();
                 // ¬tr in x,y (t−1) → ¬tr in x,y (t+1) == tr in x,y (t−1) ∨ ¬tr in x,y (t+1)
-                clause.insertFirst(trtMinus1);
-                clause.insertFirst(-trtPlus1);
+                clause.insertFirst(trtMinus1); // tr in x,y (t−1)
+                clause.insertFirst(-trtPlus1); // ¬tr in x,y (t+1)
                 solver.addClause(clause);
                 actualLiteral += 2;
             }
@@ -498,8 +498,8 @@ public class TreasureFinder {
                     VecInt notOutsideS1 = new VecInt();
                     int treasurePos = coordToLineal(i, j, TreasureFutureOffset);
                     // sensor1 in x,y (t) → ¬tr in x',y' (t+1) == ¬sensor1 in x,y (t) ∨ ¬tr in x',y' (t+1)
-                    notOutsideS1.insertFirst(-posS1_XY);
-                    notOutsideS1.insertFirst(-treasurePos);
+                    notOutsideS1.insertFirst(-posS1_XY); // ¬sensor1 in x,y (t)
+                    notOutsideS1.insertFirst(-treasurePos); // ¬tr in x',y' (t+1)
                     solver.addClause(notOutsideS1);
                 }
             }
@@ -542,8 +542,8 @@ public class TreasureFinder {
                     VecInt notOutsideS2 = new VecInt();
                     int treasurePos = coordToLineal(i, j, TreasureFutureOffset);
                     // sensor2 in x,y (t) → ¬tr in x',y' (t+1) == ¬sensor2 in x,y (t) ∨ ¬tr in x',y' (t+1)
-                    notOutsideS2.insertFirst(-posS2_XY);
-                    notOutsideS2.insertFirst(-treasurePos);
+                    notOutsideS2.insertFirst(-posS2_XY); // ¬sensor2 in x,y (t)
+                    notOutsideS2.insertFirst(-treasurePos); // ¬tr in x',y' (t+1)
                     solver.addClause(notOutsideS2);
                 }
             }
@@ -569,11 +569,12 @@ public class TreasureFinder {
                 int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}, {x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}};
                 for(int k = 0; k < sensor.length; k++) {
                     if(withinLimits(sensor[k][0], sensor[k][1])) {
+                        // here we don't check if the position is in the sensor because we want to add the clauses that are in the sensor 1 and 2 positions
                         VecInt notInS3 = new VecInt();
                         int treasurePos = coordToLineal(sensor[k][0], sensor[k][1], TreasureFutureOffset);
             //      sensor3 in x,y (t) → ¬tr in x',y' (t+1) == ¬sensor3 in x,y (t) ∨ ¬tr in x',y' (t+1)
-                        notInS3.insertFirst(-posS3_XY);
-                        notInS3.insertFirst(-treasurePos);
+                        notInS3.insertFirst(-posS3_XY); // ¬sensor3 in x,y (t)
+                        notInS3.insertFirst(-treasurePos); // ¬tr in x',y' (t+1)
                         solver.addClause(notInS3);
                     }
                 }
