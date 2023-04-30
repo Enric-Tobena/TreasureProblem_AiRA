@@ -124,7 +124,7 @@ public class TreasureFinderTest {
         // You should make TreasureFinder and TreasureWorldEnv objects to  test.
         // Then load sequence of target states, load sequence of steps into the bAgent
         // and then test the sequence calling testMakeSimpleStep once for each step.
-        TreasureFinder TAgent = new TreasureFinder(wDim, tX, tY);
+        TreasureFinder TAgent = new TreasureFinder(wDim);
         // load information about the World into the EnvAgent
         TreasureWorldEnv EnvAgent = new TreasureWorldEnv(wDim, tX, tY);
         // Load list of states

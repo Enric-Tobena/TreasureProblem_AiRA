@@ -69,12 +69,32 @@ public class TreasureFinder {
      * variables in your solution or use totally different variables to identify
      * your different subsets of variables).
      **/
-    int TreasurePastOffset;
-    int TreasureFutureOffset;
-    int DetectorOffset1;
-    int DetectorOffset2;
-    int DetectorOffset3;
 
+
+    /**
+     * Offset of past possible treasure positions
+     */
+
+    int TreasurePastOffset;
+    /**
+     * Offset of future possible treasure positions
+     */
+    int TreasureFutureOffset;
+    /**
+     * Offset of sensor 1 positions
+     */
+    int DetectorOffset1;
+    /**
+     * Offset of sensor 2 positions
+     */
+    int DetectorOffset2;
+    /**
+     * Offset of sensor 3 positions
+     */
+    int DetectorOffset3;
+    /**
+     * Counter of literals
+     */
     int actualLiteral;
 
 
@@ -85,11 +105,11 @@ public class TreasureFinder {
      *
      * @param WDim the dimension of the Treasure World
      **/
-    public TreasureFinder(int WDim, int tX, int tY) {
+    public TreasureFinder(int WDim) {
 
         WorldDim = WDim;
         WorldLinealDim = WorldDim * WorldDim;
-        EnvAgent = new TreasureWorldEnv(WDim, tX, tY);
+
 
         try {
             solver = buildGamma();
@@ -272,7 +292,7 @@ public class TreasureFinder {
      * @param ans message obtained to the query "Detects at (x,y)?".
      *            It will a message with four fields: detected  x y  [1,2,3]
      **/
-    public void processDetectorSensorAnswer(AMessage ans) throws IOException, ContradictionException, TimeoutException {
+    public void processDetectorSensorAnswer(AMessage ans) throws ContradictionException {
         if (ans.getComp(0).equals("detected")) {
             int x = Integer.parseInt(ans.getComp(1));
             int y = Integer.parseInt(ans.getComp(2));
@@ -320,6 +340,9 @@ public class TreasureFinder {
      * An efficient version of this function should try to not add to the futureToPast
      * conclusions that were already added in previous steps, although this will not produce
      * any bad functioning in the reasoning process with the formula.
+     *
+     *  @throws ContradictionException
+     *  @throws TimeoutException
      **/
 
     public void performInferenceQuestions() throws IOException, ContradictionException, TimeoutException {
@@ -331,6 +354,8 @@ public class TreasureFinder {
 
                 VecInt variablePositive = new VecInt();
                 variablePositive.insertFirst(linealIndex);
+
+
 
                 // Check if the variable is already in the list
                 if (!(solver.isSatisfiable(variablePositive))) {
@@ -349,9 +374,19 @@ public class TreasureFinder {
      * into the solver object.
      *
      * @return returns the solver object where the formula has been stored
+     *
+     * totalNumVariables = 5 * WorldDim * WorldDim * (5 variables per cell)
+     *
+     * @throws ContradictionException
+     * @throws IOException
+     * @throws TimeoutException
+     * @throws UnsupportedEncodingException
+     *
+     *
      **/
     public ISolver buildGamma() throws UnsupportedEncodingException,
             FileNotFoundException, IOException, ContradictionException {
+
         int totalNumVariables = WorldDim * WorldDim * 5;
 
         // You must set this variable to the total number of boolean variables
@@ -364,7 +399,6 @@ public class TreasureFinder {
 
         noTreasureAtNextIfNoTreasureAtPrev();
         atLeastOneTreasure();
-
         noTreasureOutsideS1();
         noTreasureOutsideS2();
         noTreasureOutsideS3();
@@ -377,6 +411,8 @@ public class TreasureFinder {
      * This function adds the clause of:
      *          ∀x,y ∈ [1, n] × [1, n] (¬tr in x,y (t−1) → ¬tr in x,y (t+1))
      * With this clause we add the restriction that past must be consistent with the future.
+     *
+     *  @throws ContradictionException
      *
      **/
     private void noTreasureAtNextIfNoTreasureAtPrev() throws ContradictionException {
@@ -398,11 +434,12 @@ public class TreasureFinder {
 
     /**
      *
-     * This function adds the clause of::
+     * This function adds the clauses of::
      *      (tr in 1,1 (t−1) ∨ tr in 1,2 (t−1) ∨ ... ∨ tr in n,n (t−1))
      *      (tr in 1,1 (t+1) ∨ tr in 1,2 (t+1) ∨ ... ∨ tr in n,n (t+1))
      *
      * With this clause we add the restriction that there is at least one treasure in the world.
+     *  @throws ContradictionException
      *
      **/
     private void atLeastOneTreasure() throws ContradictionException {
@@ -423,9 +460,12 @@ public class TreasureFinder {
     /**
      *
      * This functions adds the clauses of::
-     *      ∀(x, y) ∈ [1, n] × [1, n], ∀(x′, y′)  not ∈ {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}} (sensor1 in x,y (t) → ¬tr in x',y' (t+1) )
+     *      ∀(x, y) ∈ [1, n] × [1, n], ∀(x′, y′)  not ∈ {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}}
+     *      (sensor1 in x,y (t) → ¬tr in x',y' (t+1) )
      *
      * There is no treasure in one of the five cells if the reading is 1.
+     *
+     * @throws ContradictionException
      *
      **/
 
@@ -440,7 +480,11 @@ public class TreasureFinder {
         }
 
     }
-
+    /**
+     * @param x x coordinate of the position to check
+     * @param y coordinate of the position to check
+     * @throws ContradictionException
+     */
     private void addS1Clauses(int x, int y) throws ContradictionException {
         int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}};
         for(int i = 1; i <= WorldDim; i++) {
@@ -460,7 +504,8 @@ public class TreasureFinder {
     /**
      *
      * This functions adds the clauses of::
-     *      ∀(x, y) ∈ [1, n] × [1, n], ∀(x′, y′)  not ∈ {{x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}} (sensor2 in x,y (t) → ¬tr in x',y' (t+1) )
+     *      ∀(x, y) ∈ [1, n] × [1, n], ∀(x′, y′)  not ∈ {{x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}}
+     *      (sensor2 in x,y (t) → ¬tr in x',y' (t+1) )
      *
      * There is no treasure in one of the four cells if the reading is 2.
      *
@@ -476,6 +521,12 @@ public class TreasureFinder {
             }
         }
     }
+
+    /**
+     * @param x coordinate of the position to check
+     * @param y coordinate of the position to check
+     * @throws ContradictionException
+     */
 
     private void addS2Clauses(int x, int y) throws ContradictionException {
         int[][] sensor = {{x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}};
@@ -497,9 +548,10 @@ public class TreasureFinder {
     /**
      *
      * This functions adds the clauses of:
-     *     ∀(x, y) ∈ [1, n] × [1, n], ∀(x′, y′) ∈ (x,y) U sensor1_positions(x,y) U sensor2_positions(x,y) (sensor3 in x,y (t) → ¬tr in x',y' (t+1) )
+     *     ∀(x, y) ∈ [1, n] × [1, n], ∀(x′, y′) ∈ (x,y) U sensor1_positions(x,y) U sensor2_positions(x,y)
+     *     (sensor3 in x,y (t) → ¬tr in x',y' (t+1))
      *
-     * There is not treasure in positions of sensor1 and positions of sensor2 if the reading is 3.
+     *   There is not treasure in positions of sensor1 and positions of sensor2 if the reading is 3.
      *
      **/
 
@@ -542,6 +594,20 @@ public class TreasureFinder {
     }
 
     /**
+     * Check if position x,y is within the limits of the
+     * WorldDim x WorldDim   world
+     *
+     * @param x  x coordinate of agent position
+     * @param y  y coordinate of agent position
+     *
+     * @return true if (x,y) is within the limits of the world
+     **/
+
+    public boolean withinLimits(int x, int y){
+        return (x >= 1 && x <= WorldDim && y >= 1 && y <= WorldDim);
+    }
+
+    /**
          * Convert a coordinate pair (x,y) to the integer value  t_[x,y]
          * of variable that stores that information in the formula, using
          * offset as the initial index for that subset of position variables
@@ -576,10 +642,6 @@ public class TreasureFinder {
         coords[1] = ((lineal-1) % WorldDim) + 1;
         coords[0] = (lineal - 1) / WorldDim + 1;
         return coords;
-    }
-
-    public boolean withinLimits(int x, int y){
-        return (x >= 1 && x <= WorldDim && y >= 1 && y <= WorldDim);
     }
 
 
