@@ -4,10 +4,6 @@ package apryraz.tworld;
 
 import java.util.ArrayList;
 
-
-
-
-
 public class TreasureWorldEnv {
     /**
      * X,Y position of Treasure and world dimension
@@ -39,27 +35,18 @@ public class TreasureWorldEnv {
      **/
     public AMessage acceptMessage(AMessage msg) {
         AMessage ans = new AMessage("voidmsg", "", "", "");
-
+        int nx = Integer.parseInt(msg.getComp(1));
+        int ny = Integer.parseInt(msg.getComp(2));
         msg.showMessage();
-        if (msg.getComp(0).equals("moveto")) {
-            int nx = Integer.parseInt(msg.getComp(1));
-            int ny = Integer.parseInt(msg.getComp(2));
 
+        if (msg.getComp(0).equals("moveto")) {
             if(withinLimits(nx, ny)) {
                 ans = new AMessage("movedto", msg.getComp(1), msg.getComp(2), "");
             } else {
                 ans = new AMessage("notmovedto", msg.getComp(1), msg.getComp(2), "");
             }
-
         } else if (msg.getComp(0).equals("detected")) {
-            int nx = Integer.parseInt(msg.getComp(1));
-            int ny = Integer.parseInt(msg.getComp(2));
-
-            if (withinLimits(nx, ny)) {
-                ans = new AMessage("detected", msg.getComp(1), msg.getComp(2), sensorValueAssignment(Integer.parseInt(msg.getComp(1)), Integer.parseInt(msg.getComp(2))));
-            } else {
-                ans = new AMessage("notdetectsat", msg.getComp(1), msg.getComp(2), "");
-            }
+            ans = new AMessage("detected", msg.getComp(1), msg.getComp(2), sensorValueAssignment(Integer.parseInt(msg.getComp(1)), Integer.parseInt(msg.getComp(2))));
         }
 
         return ans;
@@ -70,7 +57,8 @@ public class TreasureWorldEnv {
             return "1";
         } else if (sensorValue2(x, y)) {
             return "2";
-        }return "3";
+        }
+        return "3";
     }
 
     boolean sensorValue1(int x, int y) {

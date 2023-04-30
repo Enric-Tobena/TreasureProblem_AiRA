@@ -42,9 +42,7 @@ public class TreasureFinderTest {
         //  the targetState after performing action runNextStep with bAgent
 
         tAgent.runNextStep();
-        assertTrue(targetState.equals(tAgent.getState()));
-
-
+        assertEquals(targetState, tAgent.getState());
     }
 
 
@@ -143,7 +141,6 @@ public class TreasureFinderTest {
 
         for (int i = 0; i < numSteps; i++) {
             testMakeSimpleStep(TAgent, seqOfStates.get(i));
-
         }
     }
 
@@ -167,9 +164,9 @@ public class TreasureFinderTest {
         if (!new java.io.File(fileStates).exists()) {
             System.out.println("MSG.   => States file not found");
             exit(1);
-
-            testMakeSeqOfSteps(6, 3, 3, 5, fileSteps, fileStates);
         }
+
+        testMakeSeqOfSteps(6, 3, 3, 5, fileSteps, fileStates);
 
     }
     @Test
@@ -202,9 +199,8 @@ public class TreasureFinderTest {
         if (!new java.io.File(fileStates).exists()) {
             System.out.println("MSG.   => States file not found");
             exit(1);
-
-            testMakeSeqOfSteps(8, 5, 4, 7, fileSteps, fileStates);
         }
+        testMakeSeqOfSteps(8, 5, 4, 7, fileSteps, fileStates);
     }
     @Test
     public void TWorldTest4() throws
@@ -219,9 +215,8 @@ public class TreasureFinderTest {
         if (!new java.io.File(fileStates).exists()) {
             System.out.println("MSG.   => States file not found");
             exit(1);
-
-            testMakeSeqOfSteps(10, 6, 5, 7, fileSteps, fileStates);
         }
+        testMakeSeqOfSteps(10, 6, 5, 7, fileSteps, fileStates);
     }
 
 

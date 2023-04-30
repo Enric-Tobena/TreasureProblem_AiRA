@@ -91,7 +91,6 @@ public class TreasureFinder {
         WorldLinealDim = WorldDim * WorldDim;
         EnvAgent = new TreasureWorldEnv(WDim, tX, tY);
 
-
         try {
             solver = buildGamma();
         } catch (FileNotFoundException ex) {
@@ -179,17 +178,12 @@ public class TreasureFinder {
         // Ask to move, and check whether it was successful
         processMoveAnswer(moveToNext());
 
-
         // Next, use Detector sensor to discover new information
         processDetectorSensorAnswer(DetectsAt());
 
         // Perform logical consequence questions for all the positions
         // of the Treasure World
         performInferenceQuestions();
-        System.out.println("END OF STEP " + idNextStep);
-        if (idNextStep == numMovements) {
-            System.out.println("END OF MOVEMENTS");
-        }
         tfstate.printState();      // Print the resulting knowledge matrix
     }
 
@@ -283,26 +277,20 @@ public class TreasureFinder {
             int x = Integer.parseInt(ans.getComp(1));
             int y = Integer.parseInt(ans.getComp(2));
             int sensorValue = Integer.parseInt(ans.getComp(3));
-            VecInt evidence = new VecInt();
-            System.out.println("x: " + x + " y: " + y + " sensorValue: " + sensorValue + "");
 
+            VecInt evidence = new VecInt();
             if (sensorValue == 1) {
                 System.out.println("WAR => adding evidence for detector 1 at : (" + x + "," + y + ")");
-                evidence.insertFirst(-coordToLineal(x, y, DetectorOffset1)); //el sensor1, por lo tanto, no puede estar en las posiciones de alrededor
+                evidence.insertFirst(coordToLineal(x, y, DetectorOffset1));
                 solver.addClause(evidence);
-
             } else if (sensorValue == 2) {
                 System.out.println("WAR => adding evidence for detector 2 at : (" + x + "," + y + ")");
-                evidence.insertFirst(-coordToLineal(x, y, DetectorOffset2));
+                evidence.insertFirst(coordToLineal(x, y, DetectorOffset2));
                 solver.addClause(evidence);
-
-
             } else if (sensorValue == 3) {
                 System.out.println("WAR => adding evidence for detector 3 at : (" + x + "," + y + ")");
-                evidence.insertFirst(-coordToLineal(x, y, DetectorOffset3)); //el sensor1, por lo tanto, no puede estar en las posiciones de alrededor
+                evidence.insertFirst(coordToLineal(x, y, DetectorOffset3));
                 solver.addClause(evidence);
-
-
             }
         }
     }
@@ -313,13 +301,11 @@ public class TreasureFinder {
      * Use the function addClause( VecInt ) to add each clause to the solver
      **/
     public void addLastFutureClausesToPastClauses() throws IOException, ContradictionException, TimeoutException {
-
         for (VecInt clause : futureToPast) {
             solver.addClause(clause);
         }
 
         futureToPast = new ArrayList<>();
-        //futureToPast.clear();
     }
 
 
@@ -352,10 +338,8 @@ public class TreasureFinder {
 
                     futureToPast.add(concPast);
                     tfstate.set(x, y, "X");
-
                 }
             }
-
         }
     }
 
@@ -367,29 +351,22 @@ public class TreasureFinder {
      **/
     public ISolver buildGamma() throws UnsupportedEncodingException,
             FileNotFoundException, IOException, ContradictionException {
-        int totalNumVariables = WorldDim * WorldDim * 3;
+        int totalNumVariables = WorldDim * WorldDim * 5;
 
         // You must set this variable to the total number of boolean variables
         // in your formula Gamma
-        // totalNumVariables =  ??
         solver = SolverFactory.newDefault();
         solver.setTimeout(3600);
         solver.newVar(totalNumVariables);
-        // This variable is used to generate, in a particular sequential order,
-        // the variable indentifiers of all the variables
+
         actualLiteral = 1;
+
         noTreasureAtNextIfNoTreasureAtPrev();
         atLeastOneTreasure();
+
         noTreasureOutsideS1();
         noTreasureOutsideS2();
         noTreasureOutsideS3();
-
-
-        //falta añadir las clausulas de los sensores
-
-
-        // call here functions to add the different sets of clauses
-        // of Gamma to the solver object
 
         return solver;
     }
@@ -397,63 +374,69 @@ public class TreasureFinder {
 
     private void noTreasureAtNextIfNoTreasureAtPrev() throws ContradictionException {
         TreasurePastOffset = actualLiteral;
+        TreasureFutureOffset = TreasurePastOffset + WorldLinealDim;
 
         for (int x = 1; x <= WorldDim; x++) {
             for (int y = 1; y <= WorldDim; y++) {
                 int trtMinus1 = coordToLineal(x, y, TreasurePastOffset);
                 int trtPlus1 = coordToLineal(x, y, TreasureFutureOffset);
                 VecInt clause = new VecInt();
-                clause.push(trtMinus1);
-                clause.push(-trtPlus1);
+                clause.insertFirst(trtMinus1);
+                clause.insertFirst(-trtPlus1);
                 solver.addClause(clause);
+                actualLiteral += 2;
             }
         }
     }
     private void atLeastOneTreasure() throws ContradictionException {
-
-        VecInt clause1 = new VecInt();
-        VecInt clause2 = new VecInt();
+        VecInt clausePast = new VecInt();
+        VecInt clauseFuture = new VecInt();
         for (int i = 1; i <= WorldDim; i++) {
             for (int j = 1; j <= WorldDim; j++) {
                 int literal1 = coordToLineal(i, j, TreasurePastOffset);
                 int literal2 = coordToLineal(i, j, TreasureFutureOffset);
-                clause1.push(literal1);
-                clause2.push(literal2);
+                clausePast.insertFirst(literal1);
+                clauseFuture.insertFirst(literal2);
             }
         }
-        solver.addClause(clause1);
-        solver.addClause(clause2);
+        solver.addClause(clausePast);
+        solver.addClause(clauseFuture);
     }
 
     private void noTreasureOutsideS1() throws ContradictionException {
         DetectorOffset1 = actualLiteral;
-
         for (int x = 1; x <= WorldDim; x++) {
             for (int y = 1; y <= WorldDim; y++) {
-                for (int i = 1; i <= WorldDim; i++) {
-                    for (int j = 1; j <= WorldDim; j++) {
-                        if (not_in_sensor1(x, y, i, j)) {
-                            int sensor2Literal = coordToLineal(i, j, DetectorOffset1);
-                            int treasureNextLiteral = coordToLineal(x, y, TreasureFutureOffset);
-                            VecInt clause = new VecInt();
-                            clause.push(-sensor2Literal);
-                            clause.push(-treasureNextLiteral);
-                            solver.addClause(clause);
-                        }
-                    }
-                }
+                addS1Clauses(x, y);
+                actualLiteral++;
             }
-            actualLiteral++;
 
         }
 
     }
 
-    private boolean not_in_sensor1(int x, int y, int i, int j) {
+    private void addS1Clauses(int x, int y) throws ContradictionException {
         int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}};
-        for (int[] ints : sensor) {
-            if (ints[0] == i && ints[1] == j) {
-                return false;
+        for(int i = 1; i <= WorldDim; i++) {
+            for(int j = 1; j <= WorldDim; j++) {
+                int posS1_XY = coordToLineal(x, y, DetectorOffset1);
+                if(notInSensor(i, j, sensor)) {
+                    VecInt notOutsideS1 = new VecInt();
+                    int treasurePos = coordToLineal(i, j, TreasureFutureOffset);
+                    notOutsideS1.insertFirst(-posS1_XY);
+                    notOutsideS1.insertFirst(-treasurePos);
+                    solver.addClause(notOutsideS1);
+                }
+            }
+        }
+    }
+
+    private boolean notInSensor(int i, int j, int[][] sensor) {
+        for(int k = 0; k < sensor.length; k++) {
+            if(withinLimits(sensor[k][0], sensor[k][1])) {
+                if (i == sensor[k][0] && j == sensor[k][1]) {
+                    return false;
+                }
             }
         }
         return true;
@@ -464,69 +447,47 @@ public class TreasureFinder {
 
         for (int x = 1; x <= WorldDim; x++) {
             for (int y = 1; y <= WorldDim; y++) {
-                for (int i = 1; i <= WorldDim; i++) {
-                    for (int j = 1; j <= WorldDim; j++) {
-                        if (not_in_sensor2(x, y, i, j)) {
-                            int sensor2Literal = coordToLineal(i, j, DetectorOffset2);
-                            int treasureNextLiteral = coordToLineal(x, y, TreasureFutureOffset);
-                            VecInt clause = new VecInt();
-                            clause.push(-sensor2Literal);
-                            clause.push(-treasureNextLiteral);
-                            solver.addClause(clause);
-                        }
-                    }
-                }
+                addS2Clauses(x, y);
+                actualLiteral++;
             }
-            actualLiteral++;
         }
     }
 
-    private boolean not_in_sensor2(int x, int y, int i, int j) {
+    private void addS2Clauses(int x, int y) throws ContradictionException {
         int[][] sensor = {{x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}};
-        for (int[] ints : sensor) {
-            if (ints[0] == i && ints[1] == j) {
-                return false;
+        for(int i = 1; i <= WorldDim; i++) {
+            for(int j = 1; j <= WorldDim; j++) {
+                int posS2_XY = coordToLineal(x, y, DetectorOffset2);
+                if(notInSensor(i, j, sensor)) {
+                    VecInt notOutsideS2 = new VecInt();
+                    int treasurePos = coordToLineal(i, j, TreasureFutureOffset);
+                    notOutsideS2.insertFirst(-posS2_XY);
+                    notOutsideS2.insertFirst(-treasurePos);
+                    solver.addClause(notOutsideS2);
+                }
             }
         }
-        return true;
-
     }
-    private void noTreasureOutsideS3() throws ContradictionException {
-        //(x, y) ∈ [1, n] × [1, n], ∀(x′, y′) ̸∈ square3(x, y) (s2t → ¬trt+1 )
-        //x,y x′,y′ make a function that generate this clause
-        DetectorOffset3 = actualLiteral;
 
-        //Sensor 3 quiere decir que no está en el cuadrado a su alrededor, justo la combinación de s1 y s2
-        for (int x = 1; x <= WorldDim; x++) {
-            for (int y = 1; y <= WorldDim; y++) {
-                for (int i = 1; i <= WorldDim; i++) {
-                    for (int j = 1; j <= WorldDim; j++) {
-                        if (not_in_sensor3(x, y, i, j)) {
-                            int sensor2Literal = coordToLineal(i, j, DetectorOffset3);
-                            int treasureNextLiteral = coordToLineal(x, y, TreasureFutureOffset);
-                            VecInt clause = new VecInt();
-                            clause.push(sensor2Literal);
-                            clause.push(treasureNextLiteral);
-                            solver.addClause(clause);
-                        }
+    private void noTreasureOutsideS3() throws ContradictionException {
+        DetectorOffset3 = actualLiteral;
+        for(int x = 1; x <= WorldDim; x++) {
+            for(int y = 1; y <= WorldDim; y++) {
+                int actualPos = coordToLineal(x, y, DetectorOffset3);
+                int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}, {x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}};
+                for(int k = 0; k < sensor.length; k++) {
+                    if(withinLimits(sensor[k][0], sensor[k][1])) {
+                        VecInt notInS3 = new VecInt();
+                        int sensorPos = coordToLineal(sensor[k][0], sensor[k][1], TreasureFutureOffset);
+
+                        notInS3.insertFirst(-actualPos);
+                        notInS3.insertFirst(-sensorPos);
+                        solver.addClause(notInS3);
                     }
                 }
             }
-            actualLiteral++;
         }
     }
-
-
-    private boolean not_in_sensor3(int x, int y, int i, int j) {
-        int[][] sensor = {{x, y - 1}, {x, y}, {x, y + 1}, {x - 1, y}, {x + 1, y}, {x + 1, y + 1}, {x + 1, y - 1}, {x - 1, y - 1}, {x - 1, y + 1}};
-        for (int[] ints : sensor) {
-            if (ints[0] == i && ints[1] == j) {
-                return false;
-            }
-        }
-        return true;
-    }
-
 
     /**
          * Convert a coordinate pair (x,y) to the integer value  t_[x,y]
@@ -563,6 +524,10 @@ public class TreasureFinder {
         coords[1] = ((lineal-1) % WorldDim) + 1;
         coords[0] = (lineal - 1) / WorldDim + 1;
         return coords;
+    }
+
+    public boolean withinLimits(int x, int y){
+        return (x >= 1 && x <= WorldDim && y >= 1 && y <= WorldDim);
     }
 
 
