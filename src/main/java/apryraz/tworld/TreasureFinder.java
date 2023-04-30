@@ -376,6 +376,8 @@ public class TreasureFinder {
      * @return returns the solver object where the formula has been stored
      *
      * totalNumVariables = 5 * WorldDim * WorldDim * (5 variables per cell)
+     * Vars = { sensor1 in x,y (t) ,sensor2 in x,y (t) ,sensor3 in x,y (t) ,tr in x,y (t−1),tr in x,y (t+1) | (x,y) ∈ [1,n] × [1,n]}
+     *
      *
      * @throws ContradictionException
      * @throws IOException
