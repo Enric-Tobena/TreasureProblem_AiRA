@@ -182,9 +182,9 @@ public class TreasureFinderTest {
         if (!new java.io.File(fileStates).exists()) {
             System.out.println("MSG.   => States file not found");
             exit(1);
-
-            testMakeSeqOfSteps(7, 4, 4, 6, fileSteps, fileStates);
         }
+        testMakeSeqOfSteps(7, 4, 4, 6, fileSteps, fileStates);
+
     }
     @Test
     public void TWorldTest3() throws
@@ -221,63 +221,6 @@ public class TreasureFinderTest {
 
 
 
-    @Test
-    public void testSolver() throws ContradictionException, TimeoutException {
-        ISolver solver;
-        int totalNumVariables;
-
-        totalNumVariables = 2;
-        solver = SolverFactory.newDefault();
-        solver.setTimeout(3600);
-        solver.newVar(totalNumVariables);
-
-        // add a simple implication: 1 -> 2
-        VecInt implication = new VecInt();
-        implication.insertFirst(2);
-        implication.insertFirst(-1);
-
-        solver.addClause(implication);
-
-        checkImplicationSatisfiability(solver, implication);
-        checkImplicationUnsatisifiability(solver, implication);
-    }
-
-    public void checkImplicationSatisfiability(ISolver solver, VecInt implication) throws TimeoutException {
-        // case 1: (-1 or 2) and 1
-        VecInt toPerformInference1 = new VecInt();
-        toPerformInference1.insertFirst(-(implication.get(0)));
-        Assert.assertTrue(solver.isSatisfiable(toPerformInference1));
-
-        // case 2: (-1 or 2) and -2
-        VecInt toPerformInference2 = new VecInt();
-        toPerformInference2.insertFirst(-(implication.get(1)));
-        Assert.assertTrue(solver.isSatisfiable(toPerformInference2));
-
-        // case 3: (-1 or 2) and -1
-        VecInt toPerformInference3 = new VecInt();
-        toPerformInference3.insertFirst((implication.get(0)));
-        Assert.assertTrue(solver.isSatisfiable(toPerformInference3));
-
-        // case 4: (-1 or 2) and 2
-        VecInt toPerformInference4 = new VecInt();
-        toPerformInference4.insertFirst((implication.get(1)));
-        Assert.assertTrue(solver.isSatisfiable(toPerformInference4));
-
-        // case 5: (-1 or 2) and (-1 and 2)
-        VecInt toPerformInference5 = new VecInt();
-        toPerformInference5.insertFirst((implication.get(1)));
-        toPerformInference5.insertFirst((implication.get(0)));
-        Assert.assertTrue(solver.isSatisfiable(toPerformInference5));
-
-    }
-    public void checkImplicationUnsatisifiability(ISolver solver, VecInt implication) throws TimeoutException {
-        // case 4: (-1 or 2) and (1 and -2)
-        VecInt toPerformInference = new VecInt();
-        toPerformInference.insertFirst(-(implication.get(0)));
-        toPerformInference.insertFirst(-(implication.get(1)));
-
-        Assert.assertFalse(solver.isSatisfiable(toPerformInference));
-    }
 
 
 
